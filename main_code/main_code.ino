@@ -8,32 +8,41 @@ void setup() {
   //enc_shift = pin A
   //enc_scale = pin B
   //enc_trig = pin C
-
 }
 
 void loop() {
-  /*
-  Assign boolean variable to horizontal/vertical switch
-  bool vert_horz = pin D
+  /*Assign boolean variable to horizontal/vertical switch
+  bool vertical = pin D
+  bool signal_1 = pin E
 
   check if encoder has been changed
 
   if enc_shift != pin A
-      if enc_shift = pin A + 1 or enc_shift = pin A - 3 (in case of move from 11 to 00)
-        if vert_horz
-          shift plot right
+      if enc_shift rotated clockwise
+        if signal_1
+          if vertical
+            shift signal 1 up
+          else
+            shift signal 1 right
         else
-          shift plot up
+          if vertical
+            shift signal 2 up
+          else
+            shift signal 2 right
         enc_shift = pin A
 
-      else if enc_shift = pin A - 1 or enc_shift = pin A + 3
-        if vert_horz
-          shift plot left
+      else if enc_shift rotated counter-clockwise
+        if signal_1
+          if vertical
+            shift signal 1 down
+          else
+            shift signal 1 left
         else
-          shift plot down
+          if vertical
+            shift signal 2 down
+          else
+            shift signal 2 left
         enc_shift = pin A
 
-  Repeat similar process for scaling and trigger encoders, 
-  neglecting horizontal/vertical switch for the trigger
-  */
+  Repeat similar process for scaling and trigger encoders, neglecting horizontal/vertical switch for the trigger*/
 }
