@@ -152,12 +152,12 @@ def encoder_handler(pin: Pin):
     return
             
 
-shift_A.irq(handler = encoder_handler)
-shift_B.irq(handler = encoder_handler)
-scale_A.irq(handler = encoder_handler)
-scale_B.irq(handler = encoder_handler)
-trig_A.irq(handler = encoder_handler)
-trig_B.irq(handler = encoder_handler)
+shift_A.irq(handler = encoder_handler, trigger=Pin.IRQ_FALLING|Pin.IRQ_RISING)
+shift_B.irq(handler = encoder_handler, trigger=Pin.IRQ_FALLING|Pin.IRQ_RISING)
+scale_A.irq(handler = encoder_handler, trigger=Pin.IRQ_FALLING|Pin.IRQ_RISING)
+scale_B.irq(handler = encoder_handler, trigger=Pin.IRQ_FALLING|Pin.IRQ_RISING)
+trig_A.irq(handler = encoder_handler, trigger=Pin.IRQ_FALLING|Pin.IRQ_RISING)
+trig_B.irq(handler = encoder_handler, trigger=Pin.IRQ_FALLING|Pin.IRQ_RISING)
 
 
 while True:
