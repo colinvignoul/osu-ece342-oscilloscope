@@ -1,0 +1,37 @@
+* Spice Model
+* Item: 1N4617
+* Date: 9/18/19
+* Revision History: A
+*==========================================================
+* This model was developed by: 
+* Central Semiconductor Corp.
+* 145 Adams Avenue
+* Hauppauge, NY 11788
+*
+* These models are subject to change without notice.
+* Users may not directly or indirectly re-sell or 
+* re-distribute this model. This model may not 
+* be modified, or altered without the consent of Central Semiconductor Corp. 
+*
+* For more information on this model contact
+* Central Semiconductor Corp. at:
+* (631) 435-1110 or Engineering@centralsemi.com
+* http://www.centralsemi.com
+**==========================================================
+*DEVICE=1N4617,D
+* 1N4617 D model
+* created using Model Editor release 17.2.0 on 09/17/19 at 14:27
+* The Model Editor is a PSpice product.
+.MODEL 1N4617 D
++ IS=4.7645E-15
++ N=1.0603
++ RS=.38226
++ IKF=5.0220
++ CJO=179.04E-12
++ M=.34854
++ VJ=.79861
++ ISR=32.309E-6
++ NR=4.9950
++ BV=2.5471
++ IBV=73.918E-3
++ TT=216.40E-9
