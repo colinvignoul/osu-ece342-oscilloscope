@@ -15,11 +15,15 @@ vert2_stretch = 1
 trig1_pos = 0
 trig2_pos = 0
 
-trig_shift = 2
+trig_shift = 0.05
 graph_shift = 2
 graph_scale = 1.25
 
+voltage1 = -1
+voltage2 = -0.5
 
+trigger1 = False
+trigger2 = False
 
 led = Pin("LED", Pin.OUT)
 
@@ -163,8 +167,32 @@ trig_B.irq(handler = encoder_handler, trigger=Pin.IRQ_FALLING|Pin.IRQ_RISING)
 while True:
     #Test if Pico is working
     led.toggle()
-    utime.sleep(0.5)
+    utime.sleep(5)
+    trig1_ready = False
+    trig2_ready = False
 
+    if(voltage1 < trig1_pos & trig1_ready == False):
+        trig1_ready = True
+    elif (voltage1 >= trig1_pos & trig1_ready == True):
+        trig1_ready = False
+        print("Trigger 1 Activated")
+
+    if(voltage2 < trig2_pos & trig2_ready == False):
+        trig2_ready = True
+    elif (voltage2 >= trig2_pos & trig2_ready == True):
+        trig2_ready = False
+        print("Trigger 2 Activated")
+
+    print("Horizontal Sig1 Shift: " + str(horz1_pos))
+    print("Vertical Sig1 Shift: " + str(vert1_pos))
+    print("Horizontal Sig2 Shift: " + str(horz2_pos))
+    print("Vertical Sig2 Shift: " + str(vert2_pos))
+    print("Horizontal Sig1 Scale Factor: " + str(horz1_stretch))
+    print("Vertical Sig1 Scale Factor: " + str(vert1_stretch))
+    print("Horizontal Sig2 Scale Factor: " + str(horz2_stretch))
+    print("Vertical Sig2 Scale Factor: " + str(vert2_stretch))
+    print("Trigger 1 Level: " + str(trig1_pos) + "  Voltage 1: " + str(voltage1))
+    print("Trigger 2 Level: " + str(trig2_pos) + "  Voltage 2: " + str(voltage2))
     
 
     

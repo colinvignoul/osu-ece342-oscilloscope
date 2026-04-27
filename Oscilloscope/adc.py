@@ -1,4 +1,5 @@
 from machine import ADC
+import uctypes 
 import rp2
 import array
 
