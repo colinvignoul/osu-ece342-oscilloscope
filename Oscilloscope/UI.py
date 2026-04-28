@@ -31,8 +31,8 @@ shift_A = Pin(0, Pin.IN, Pin.PULL_DOWN)
 shift_B = Pin(1, Pin.IN, Pin.PULL_DOWN)
 shift_pins = [0, 1]
 
-scale_A = Pin(2, Pin.IN, Pin.PULL_DOWN)
-scale_B = Pin(3, Pin.IN, Pin.PULL_DOWN)
+scale_A = Pin(8, Pin.IN, Pin.PULL_DOWN)
+scale_B = Pin(9, Pin.IN, Pin.PULL_DOWN)
 scale_pins = [2, 3]
 
 trig_A = Pin(4, Pin.IN, Pin.PULL_DOWN)
@@ -40,23 +40,25 @@ trig_B = Pin(5, Pin.IN, Pin.PULL_DOWN)
 trig_pins = [4, 5]
 
 
-horz_switch_pin = 6
+horz_switch_pin = 2
 
 signal2_switch_pin = 7
 
 #Got this from google gemini
-def get_pin_id(pin_obj):
+def get_pin_id(pin_obj: Pin):
     # Converts 'Pin(GPIO13, mode=IN)' or 'Pin(13)' into '13'
     import re
     # Extract digits from the string representation
     match = re.search(r'\d+', str(pin_obj))
-    return int(match.group()) if match else None
+    if match:
+        return int(match.group(0))  
+    return None
 
     
 def encoder_handler(pin: Pin):
     pin_id = get_pin_id(pin)
-    pin_id2 = -1
-    if pin_id:
+    pin_id2 = 0
+    if pin_id != None:
         if (pin_id % 2) == 0:
             pin_id2 = pin_id + 1
         else:
@@ -65,7 +67,7 @@ def encoder_handler(pin: Pin):
     horz = Pin(horz_switch_pin, Pin.IN, Pin.PULL_DOWN).value() #Gets orientation of the horizontal/vertical switch
     sig2 = Pin(signal2_switch_pin, Pin.IN, Pin.PULL_DOWN).value() #Gets orientation of the signal 1/signal 2 switch
 
-    if Pin(pin_id).value() == Pin(pin_id2).value():
+    if Pin(pin_id, Pin.IN, Pin.PULL_DOWN).value() == Pin(pin_id2, Pin.IN, Pin.PULL_DOWN).value():
         if horz and sig2:
             if pin_id in shift_pins:
                 global horz2_pos
@@ -157,7 +159,6 @@ def encoder_handler(pin: Pin):
             
 
 shift_A.irq(handler = encoder_handler, trigger=Pin.IRQ_FALLING|Pin.IRQ_RISING)
-shift_B.irq(handler = encoder_handler, trigger=Pin.IRQ_FALLING|Pin.IRQ_RISING)
 scale_A.irq(handler = encoder_handler, trigger=Pin.IRQ_FALLING|Pin.IRQ_RISING)
 scale_B.irq(handler = encoder_handler, trigger=Pin.IRQ_FALLING|Pin.IRQ_RISING)
 trig_A.irq(handler = encoder_handler, trigger=Pin.IRQ_FALLING|Pin.IRQ_RISING)
@@ -167,7 +168,7 @@ trig_B.irq(handler = encoder_handler, trigger=Pin.IRQ_FALLING|Pin.IRQ_RISING)
 while True:
     #Test if Pico is working
     led.toggle()
-    utime.sleep(5)
+    utime.sleep(3)
     trig1_ready = False
     trig2_ready = False
 
@@ -185,6 +186,7 @@ while True:
 
     print("Horizontal Sig1 Shift: " + str(horz1_pos))
     print("Vertical Sig1 Shift: " + str(vert1_pos))
+    print("Horizontal switch orientation: " + str(Pin(horz_switch_pin).value()))
     print("Horizontal Sig2 Shift: " + str(horz2_pos))
     print("Vertical Sig2 Shift: " + str(vert2_pos))
     print("Horizontal Sig1 Scale Factor: " + str(horz1_stretch))
