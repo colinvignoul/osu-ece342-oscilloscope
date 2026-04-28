@@ -1287,18 +1287,6 @@
 		)
 		(uuid "1621e701-7fd7-4fc1-8a09-323247fd98d3")
 	)
-	(text "??"
-		(exclude_from_sim no)
-		(at 26.67 47.752 0)
-		(effects
-			(font
-				(size 2.54 2.54)
-				(thickness 0.254)
-				(bold yes)
-			)
-		)
-		(uuid "2e17482c-935e-4f58-91d8-161f058cbb6e")
-	)
 	(text "aluminum"
 		(exclude_from_sim no)
 		(at 120.904 124.206 0)
@@ -1321,6 +1309,16 @@
 		)
 		(uuid "815de7e4-909e-47aa-b565-fbcc0d7cbb46")
 	)
+	(text "aluminum"
+		(exclude_from_sim no)
+		(at 29.21 48.514 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "81d54cd9-e728-4174-a2d8-fb79e937f506")
+	)
 	(text "ADC Drivers"
 		(exclude_from_sim no)
 		(at 125.222 22.352 0)
@@ -1342,18 +1340,6 @@
 		)
 		(uuid "8e53ac17-6b61-4878-a802-0ade3c69a55b")
 	)
-	(text "??"
-		(exclude_from_sim no)
-		(at 34.036 56.388 0)
-		(effects
-			(font
-				(size 2.54 2.54)
-				(thickness 0.254)
-				(bold yes)
-			)
-		)
-		(uuid "96489b06-195e-4928-b6e5-78694092ad86")
-	)
 	(text "Power\n(ground probe to 0V)"
 		(exclude_from_sim no)
 		(at 124.968 134.366 0)
@@ -1365,6 +1351,16 @@
 			)
 		)
 		(uuid "9ed4ad24-d418-4ced-8636-83685e433b92")
+	)
+	(text "aluminum"
+		(exclude_from_sim no)
+		(at 30.988 59.436 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "be348747-a911-4c91-bac0-08ca36884781")
 	)
 	(text "100R\n100pF"
 		(exclude_from_sim no)
@@ -1686,7 +1682,7 @@
 	)
 	(wire
 		(pts
-			(xy 229.87 57.15) (xy 238.76 57.15)
+			(xy 240.03 50.8) (xy 248.92 50.8)
 		)
 		(stroke
 			(width 0)
@@ -1783,16 +1779,6 @@
 			(type default)
 		)
 		(uuid "6c99ada2-32e4-4a10-8c9c-210011b57dc6")
-	)
-	(wire
-		(pts
-			(xy 91.44 114.3) (xy 114.3 114.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "73ebf8f7-9068-40fa-ae42-6186b1895453")
 	)
 	(wire
 		(pts
@@ -1896,6 +1882,16 @@
 	)
 	(wire
 		(pts
+			(xy 91.44 114.3) (xy 114.3 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b38811c8-f53c-46b9-adb9-0d68acf2d938")
+	)
+	(wire
+		(pts
 			(xy 59.69 121.92) (xy 46.99 121.92)
 		)
 		(stroke
@@ -1936,7 +1932,7 @@
 	)
 	(wire
 		(pts
-			(xy 229.87 59.69) (xy 238.76 59.69)
+			(xy 240.03 53.34) (xy 248.92 53.34)
 		)
 		(stroke
 			(width 0)
@@ -2025,7 +2021,7 @@
 		(uuid "40d63c98-9946-4c00-a9e4-0841f61c3df5")
 	)
 	(label "output_1"
-		(at 229.87 57.15 0)
+		(at 240.03 50.8 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2085,7 +2081,7 @@
 		(uuid "933a4fe8-8a58-4588-b1ea-d1ea89d0dbc8")
 	)
 	(label "output_2"
-		(at 229.87 59.69 0)
+		(at 240.03 53.34 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3387,7 +3383,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "1u"
+		(property "Value" "5u"
 			(at 29.21 57.1499 0)
 			(effects
 				(font
@@ -3396,7 +3392,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_THT:C_Radial_D5.0mm_H11.0mm_P2.00mm"
 			(at 26.3652 59.69 0)
 			(effects
 				(font
@@ -3657,7 +3653,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "1u"
+		(property "Value" "5u"
 			(at 21.59 48.2599 0)
 			(effects
 				(font
@@ -3666,7 +3662,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_THT:C_Radial_D5.0mm_H11.0mm_P2.00mm"
 			(at 18.7452 50.8 0)
 			(effects
 				(font
@@ -3803,7 +3799,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_THT:C_Radial_D5.0mm_H11.0mm_P2.00mm"
 			(at 115.2652 124.46 0)
 			(effects
 				(font
@@ -4317,7 +4313,7 @@
 	)
 	(symbol
 		(lib_id "Connector:Conn_01x02_Socket")
-		(at 243.84 57.15 0)
+		(at 254 50.8 0)
 		(unit 1)
 		(exclude_from_sim yes)
 		(in_bom yes)
@@ -4326,7 +4322,7 @@
 		(fields_autoplaced yes)
 		(uuid "cf0d587e-a81d-4b3d-825f-6a97d1284636")
 		(property "Reference" "J4"
-			(at 245.11 57.1499 0)
+			(at 255.27 50.7999 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4335,7 +4331,7 @@
 			)
 		)
 		(property "Value" "Conn_01x02_Socket"
-			(at 245.11 59.6899 0)
+			(at 255.27 53.3399 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4344,7 +4340,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 243.84 57.15 0)
+			(at 254 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4353,7 +4349,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 243.84 57.15 0)
+			(at 254 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4362,7 +4358,7 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x02, script generated"
-			(at 243.84 57.15 0)
+			(at 254 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4652,48 +4648,6 @@
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81"
 					(page "4")
-				)
-			)
-		)
-	)
-	(sheet
-		(at 224.79 21.59)
-		(size 39.37 22.86)
-		(exclude_from_sim yes)
-		(in_bom no)
-		(on_board no)
-		(dnp no)
-		(fields_autoplaced yes)
-		(stroke
-			(width 0.1524)
-			(type solid)
-		)
-		(fill
-			(color 0 0 0 0.0000)
-		)
-		(uuid "404c5dd1-4d5c-4f5d-9da7-3eaf008d2094")
-		(property "Sheetname" "RP2040"
-			(at 224.79 20.8784 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left bottom)
-			)
-		)
-		(property "Sheetfile" "RP2040.kicad_sch"
-			(at 224.79 45.0346 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-			)
-		)
-		(instances
-			(project "input_conditioning_r2"
-				(path "/e8001732-a560-4bb6-87d1-5a7552612e81"
-					(page "3")
 				)
 			)
 		)

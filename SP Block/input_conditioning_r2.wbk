@@ -26,15 +26,6 @@
         },
         {
           "color": "rgb(55, 126, 184)",
-          "cursor1": {
-            "position": 111109.61275901522,
-            "x_format": "3~Hz",
-            "y_format": "3~dB"
-          },
-          "cursorD": {
-            "x_format": "3~s",
-            "y_format": "3~V"
-          },
           "signal": "V(/output_1) (gain)",
           "trace_type": 521
         }
@@ -99,12 +90,12 @@
       "showGrid": true,
       "traces": [
         {
-          "color": "rgb(55, 126, 184)",
+          "color": "rgb(255, 0, 0)",
           "signal": "V(/input_1)",
           "trace_type": 257
         },
         {
-          "color": "rgb(228, 26, 28)",
+          "color": "rgb(20, 159, 255)",
           "signal": "V(/output_1)",
           "trace_type": 257
         }
