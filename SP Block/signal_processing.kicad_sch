@@ -387,174 +387,6 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "Device:D"
-			(pin_numbers
-				(hide yes)
-			)
-			(pin_names
-				(offset 1.016)
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "D"
-				(at 0 2.54 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "D"
-				(at 0 -2.54 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "~"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Diode"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Sim.Device" "D"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Sim.Pins" "1=K 2=A"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "diode"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_fp_filters" "TO-???* *_Diode_* *SingleDiode* D_*"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "D_0_1"
-				(polyline
-					(pts
-						(xy -1.27 1.27) (xy -1.27 -1.27)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 1.27 1.27) (xy 1.27 -1.27) (xy -1.27 0) (xy 1.27 1.27)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 1.27 0) (xy -1.27 0)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "D_1_1"
-				(pin passive line
-					(at -3.81 0 0)
-					(length 2.54)
-					(name "K"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 3.81 0 180)
-					(length 2.54)
-					(name "A"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "Device:R"
 			(pin_numbers
 				(hide yes)
@@ -662,6 +494,173 @@
 					(at 0 -3.81 90)
 					(length 1.27)
 					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "Diode:1N4148"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "D"
+				(at 0 2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "1N4148"
+				(at 0 -2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" "Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "100V 0.15A standard switching diode, DO-35"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Sim.Device" "D"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Sim.Pins" "1=K 2=A"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "diode"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "D*DO?35*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "1N4148_0_1"
+				(polyline
+					(pts
+						(xy -1.27 1.27) (xy -1.27 -1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.27 1.27) (xy 1.27 -1.27) (xy -1.27 0) (xy 1.27 1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.27 0) (xy -1.27 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "1N4148_1_1"
+				(pin passive line
+					(at -3.81 0 0)
+					(length 2.54)
+					(name "K"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 3.81 0 180)
+					(length 2.54)
+					(name "A"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1317,6 +1316,16 @@
 			)
 		)
 		(uuid "e2870365-5092-4690-a030-f08ab3cd2c34")
+	)
+	(text "X7R\nOPA V-"
+		(exclude_from_sim no)
+		(at 222.504 72.39 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "e87be7db-83fb-4677-844d-eb39d6ead451")
 	)
 	(text "5Vpp"
 		(exclude_from_sim no)
@@ -2010,6 +2019,12 @@
 			(uuid "d8c7c0c5-d158-4a2e-8040-5e0dabd99cc5")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "#PWR0110")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "#PWR071")
@@ -2080,6 +2095,12 @@
 			(uuid "7cb29a33-5cf1-4f9b-a3c0-c6d1cae7a93f")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "#PWR0109")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "#PWR019")
@@ -2087,116 +2108,6 @@
 				)
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/74d925d8-2515-4a8d-b75f-cd27006197d7"
 					(reference "#PWR037")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:D")
-		(at 83.82 116.84 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "144f46df-52b3-4444-96f8-d7c18bb3026f")
-		(property "Reference" "D4"
-			(at 86.36 115.5699 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "1N4617"
-			(at 86.36 118.1099 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 83.82 116.84 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 83.82 116.84 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Diode"
-			(at 83.82 116.84 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Sim.Device" "D"
-			(at 83.82 116.84 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Sim.Pins" "1=K 2=A"
-			(at 83.82 116.84 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Sim.Library" "1N4617.lib"
-			(at 83.82 116.84 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Sim.Name" "1N4617"
-			(at 83.82 116.84 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "e49caa95-d920-47e2-a9e8-70103978d34c")
-		)
-		(pin "1"
-			(uuid "9d2b5121-56c1-4eb4-8759-b29e868e5f9b")
-		)
-		(instances
-			(project "input_conditioning_r2"
-				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
-					(reference "D4")
-					(unit 1)
-				)
-				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/74d925d8-2515-4a8d-b75f-cd27006197d7"
-					(reference "D2")
 					(unit 1)
 				)
 			)
@@ -2261,6 +2172,12 @@
 			(uuid "5ac59a56-bbef-49f4-9ed1-bd7f3be70530")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "#PWR0115")
+					(unit 1)
+				)
+			)
 			(project ""
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "#PWR04")
@@ -2291,7 +2208,7 @@
 				)
 			)
 		)
-		(property "Value" "50k"
+		(property "Value" "47k"
 			(at 71.12 106.68 90)
 			(effects
 				(font
@@ -2333,6 +2250,12 @@
 			(uuid "37676955-d647-469c-a11c-298ea037c837")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "R?")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "R6")
@@ -2405,6 +2328,12 @@
 			(uuid "29e37a37-7f51-4179-9a08-3540156c440d")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "C?")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "C1")
@@ -2477,6 +2406,12 @@
 			(uuid "95e3b91e-e8cf-4b0f-b71c-8fe051ae6977")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "R?")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "R14")
@@ -2547,6 +2482,12 @@
 			(uuid "d3e35bb4-9475-4335-ae6c-c4be618d9bf5")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "#PWR0102")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "#PWR017")
@@ -2617,6 +2558,12 @@
 			(uuid "eda90391-da99-4fa6-9518-15c88bf2824e")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "#PWR0104")
+					(unit 1)
+				)
+			)
 			(project ""
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "#PWR023")
@@ -2687,6 +2634,12 @@
 			(uuid "bf01d450-593d-4f11-901e-92acdb302a0d")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "#PWR0111")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "#PWR070")
@@ -2759,6 +2712,12 @@
 			(uuid "4a4ee65a-2980-4b48-b45f-999d2776be35")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "R?")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "R13")
@@ -2831,6 +2790,12 @@
 			(uuid "ab6fcd2e-a4ff-4724-9722-d3d6ee217104")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "C?")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "C12")
@@ -2903,6 +2868,12 @@
 			(uuid "9c7326fb-19f8-4fab-b9cd-eaba1110c5f5")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "C?")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "C10")
@@ -2974,6 +2945,12 @@
 			(uuid "4b1516d3-45f6-4ad0-bf82-d6e1c2fc801e")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "#PWR0101")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "#PWR016")
@@ -3048,6 +3025,12 @@
 			(uuid "7d5e2cf0-5d38-4a54-852c-ae33c41e1f98")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "C?")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "C32")
@@ -3055,6 +3038,104 @@
 				)
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/74d925d8-2515-4a8d-b75f-cd27006197d7"
 					(reference "C33")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode:1N4148")
+		(at 83.82 116.84 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "4674965d-097f-4cea-8de0-f19d3ce97b41")
+		(property "Reference" "D1"
+			(at 86.36 115.5699 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1N4148"
+			(at 86.36 118.1099 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal"
+			(at 83.82 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf"
+			(at 83.82 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "100V 0.15A standard switching diode, DO-35"
+			(at 83.82 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" "D"
+			(at 83.82 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" "1=K 2=A"
+			(at 83.82 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "e83f1e25-ff0b-4c72-b038-06bbcc128e91")
+		)
+		(pin "1"
+			(uuid "9f830fae-1522-4bd1-bee2-1ab7b0386efc")
+		)
+		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "D?")
+					(unit 1)
+				)
+			)
+			(project "input_conditioning_r2"
+				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
+					(reference "D1")
+					(unit 1)
+				)
+				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/74d925d8-2515-4a8d-b75f-cd27006197d7"
+					(reference "D2")
 					(unit 1)
 				)
 			)
@@ -3119,6 +3200,12 @@
 			(uuid "ea74657f-623a-4430-819b-92fbd6c84ba4")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "#FLG0102")
+					(unit 1)
+				)
+			)
 			(project ""
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "#FLG02")
@@ -3126,6 +3213,76 @@
 				)
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/74d925d8-2515-4a8d-b75f-cd27006197d7"
 					(reference "#FLG06")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 215.9 71.12 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "5e1aad3d-eb69-44f9-81be-d175939eacfe")
+		(property "Reference" "#PWR087"
+			(at 215.9 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 215.9 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 215.9 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 215.9 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 215.9 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "be07c5e7-f25d-466e-83e6-3108a13da003")
+		)
+		(instances
+			(project "input_conditioning_r2"
+				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
+					(reference "#PWR087")
+					(unit 1)
+				)
+				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/74d925d8-2515-4a8d-b75f-cd27006197d7"
+					(reference "#PWR089")
 					(unit 1)
 				)
 			)
@@ -3189,6 +3346,12 @@
 			(uuid "d3b4a0c4-4ee1-4335-823f-7873b2f87150")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "#PWR0103")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "#PWR018")
@@ -3219,7 +3382,7 @@
 				)
 			)
 		)
-		(property "Value" "50k"
+		(property "Value" "47k"
 			(at 166.37 93.98 90)
 			(effects
 				(font
@@ -3261,6 +3424,12 @@
 			(uuid "4f5037b3-cdd9-4304-b9c0-fe3212fc7830")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "R?")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "R15")
@@ -3332,6 +3501,12 @@
 			(uuid "34a6b1be-e33f-411b-ab89-ec3656ab21ed")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "#PWR0116")
+					(unit 1)
+				)
+			)
 			(project ""
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "#PWR05")
@@ -3458,6 +3633,12 @@
 			(uuid "8cb48621-fa14-4d1a-99eb-b7a924d1a2a7")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "U?")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "U6")
@@ -3528,6 +3709,12 @@
 			(uuid "4d1392d7-6d37-4623-a46e-5da103e1301c")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "#PWR0117")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "#PWR021")
@@ -3598,6 +3785,12 @@
 			(uuid "c6e44e57-4a57-4604-a627-780238d315d8")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "#PWR0106")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "#PWR015")
@@ -3628,7 +3821,7 @@
 				)
 			)
 		)
-		(property "Value" "50k"
+		(property "Value" "47k"
 			(at 96.52 106.68 90)
 			(effects
 				(font
@@ -3670,6 +3863,12 @@
 			(uuid "247fa9f3-6924-4303-bfea-52e468661d11")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "R?")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "R12")
@@ -3744,6 +3943,12 @@
 			(uuid "b1d9008c-289b-43d4-baf5-50fcf09545c7")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "C?")
+					(unit 1)
+				)
+			)
 			(project ""
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "C14")
@@ -3818,6 +4023,12 @@
 			(uuid "f171d6aa-21e5-4065-97f8-86ae6be3651a")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "C?")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "C15")
@@ -3890,6 +4101,12 @@
 			(uuid "36ac2928-f745-40b2-9d4b-164f3b43756b")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "R?")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "R16")
@@ -3961,6 +4178,12 @@
 			(uuid "e1819ad5-97e4-420a-ab7f-753191b5a595")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "#FLG0101")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "#FLG03")
@@ -4033,6 +4256,12 @@
 			(uuid "db2911f5-139a-4d9c-b48f-a080a926690f")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "C?")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "C11")
@@ -4103,6 +4332,12 @@
 			(uuid "044ca22d-ac34-46fa-a55f-1ed7febffbc5")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "#PWR0112")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "#PWR020")
@@ -4173,6 +4408,12 @@
 			(uuid "94de9f63-8dca-421a-a520-1b25850cf0f8")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "#PWR0107")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "#PWR024")
@@ -4204,7 +4445,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "500p"
+		(property "Value" "680p"
 			(at 227.33 118.1099 0)
 			(effects
 				(font
@@ -4247,6 +4488,12 @@
 			(uuid "f3e60642-b793-459d-8e59-555bef355c3b")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "C?")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "C13")
@@ -4317,6 +4564,12 @@
 			(uuid "e189e263-6901-417e-8c1c-b3b8c41d7e9c")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "#PWR0105")
+					(unit 1)
+				)
+			)
 			(project ""
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "#PWR022")
@@ -4387,6 +4640,12 @@
 			(uuid "4b61b4b1-d075-41a9-9931-5da9519800e7")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "#PWR0113")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "#PWR014")
@@ -4458,6 +4717,12 @@
 			(uuid "6af96faf-c9ba-421b-bf46-912738b53cb4")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "#PWR0114")
+					(unit 1)
+				)
+			)
 			(project ""
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "#PWR06")
@@ -4471,35 +4736,34 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:D")
-		(at 83.82 104.14 270)
+		(lib_id "power:+5V")
+		(at 215.9 63.5 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "e7489ba1-7744-4e27-99ec-c6b75c51d2aa")
-		(property "Reference" "D3"
-			(at 86.36 102.8699 90)
+		(uuid "decb6ee2-c2b4-40e3-81a9-a30d35a25096")
+		(property "Reference" "#PWR086"
+			(at 215.9 67.31 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(hide yes)
 			)
 		)
-		(property "Value" "1N4617"
-			(at 86.36 105.4099 90)
+		(property "Value" "+5V"
+			(at 215.9 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
 			)
 		)
 		(property "Footprint" ""
-			(at 83.82 104.14 0)
+			(at 215.9 63.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4507,8 +4771,8 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "~"
-			(at 83.82 104.14 0)
+		(property "Datasheet" ""
+			(at 215.9 63.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4516,65 +4780,26 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Diode"
-			(at 83.82 104.14 0)
+		(property "Description" "Power symbol creates a global label with name \"+5V\""
+			(at 215.9 63.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
 			)
-		)
-		(property "Sim.Device" "D"
-			(at 83.82 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Sim.Pins" "1=K 2=A"
-			(at 83.82 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Sim.Library" "1N4617.lib"
-			(at 83.82 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Sim.Name" "1N4617"
-			(at 83.82 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "1eeb2858-46cc-4654-a73f-822f7d95bc5d")
 		)
 		(pin "1"
-			(uuid "48f0e46d-a405-453a-85b9-904e81d013d9")
+			(uuid "356c2e7f-3984-4aa3-bcb2-0adeee2f0c9f")
 		)
 		(instances
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
-					(reference "D3")
+					(reference "#PWR086")
 					(unit 1)
 				)
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/74d925d8-2515-4a8d-b75f-cd27006197d7"
-					(reference "D1")
+					(reference "#PWR088")
 					(unit 1)
 				)
 			)
@@ -4638,6 +4863,12 @@
 			(uuid "6d2f9390-ea21-4945-bf35-d5519383ea79")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "#PWR0108")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "#PWR025")
@@ -4645,6 +4876,80 @@
 				)
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/74d925d8-2515-4a8d-b75f-cd27006197d7"
 					(reference "#PWR040")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 215.9 67.31 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "ecdcb4fa-836f-4ffe-9d05-ec6e05496fd7")
+		(property "Reference" "C40"
+			(at 219.71 66.0399 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "100n"
+			(at 219.71 68.5799 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 216.8652 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 215.9 67.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 215.9 67.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "2ab27537-c536-4d84-b855-0609d3c6b84a")
+		)
+		(pin "1"
+			(uuid "44e6eb84-3196-4270-9eb2-ed6010469f94")
+		)
+		(instances
+			(project "input_conditioning_r2"
+				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
+					(reference "C40")
+					(unit 1)
+				)
+				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/74d925d8-2515-4a8d-b75f-cd27006197d7"
+					(reference "C41")
 					(unit 1)
 				)
 			)
@@ -4764,6 +5069,12 @@
 			(uuid "ad4602d9-476c-4b87-ad02-7690bf3dfcd4")
 		)
 		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "U?")
+					(unit 1)
+				)
+			)
 			(project "input_conditioning_r2"
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
 					(reference "U3")
@@ -4771,6 +5082,104 @@
 				)
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/74d925d8-2515-4a8d-b75f-cd27006197d7"
 					(reference "U5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode:1N4148")
+		(at 83.82 104.14 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "fa03c454-1bab-46f7-a9d6-67a2d815142d")
+		(property "Reference" "D9"
+			(at 86.36 102.8699 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1N4148"
+			(at 86.36 105.4099 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal"
+			(at 83.82 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf"
+			(at 83.82 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "100V 0.15A standard switching diode, DO-35"
+			(at 83.82 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" "D"
+			(at 83.82 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" "1=K 2=A"
+			(at 83.82 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "783e0964-cb2f-461a-85aa-46eea87c0874")
+		)
+		(pin "1"
+			(uuid "c7e7dc7f-474b-4753-bd8a-e3065f3617d9")
+		)
+		(instances
+			(project "signal_processing"
+				(path "/904583ae-89a6-4782-b7ef-9e696f54ad80"
+					(reference "D?")
+					(unit 1)
+				)
+			)
+			(project ""
+				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/27bf9f48-1bee-43b5-8dad-dfa02d41367b"
+					(reference "D9")
+					(unit 1)
+				)
+				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/74d925d8-2515-4a8d-b75f-cd27006197d7"
+					(reference "D10")
 					(unit 1)
 				)
 			)

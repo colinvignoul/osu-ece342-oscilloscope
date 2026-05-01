@@ -20,12 +20,12 @@
       "showGrid": true,
       "traces": [
         {
-          "color": "rgb(77, 175, 74)",
+          "color": "rgb(55, 126, 184)",
           "signal": "V(/input_1) (gain)",
           "trace_type": 521
         },
         {
-          "color": "rgb(55, 126, 184)",
+          "color": "rgb(77, 175, 74)",
           "signal": "V(/output_1) (gain)",
           "trace_type": 521
         }
@@ -74,7 +74,7 @@
     {
       "analysis": "TRAN",
       "commands": [
-        ".tran 200u 500m",
+        ".tran 10u 1",
         ".kicad adjustpaths",
         ".save all",
         ".kicad esavenone"
@@ -86,7 +86,16 @@
         "right": 70,
         "top": 30
       },
-      "measurements": [],
+      "measurements": [
+        {
+          "expr": "PP V(/output_1)",
+          "format": "3~V"
+        },
+        {
+          "expr": "INTEG V(/output_1)",
+          "format": "3~V.s"
+        }
+      ],
       "showGrid": true,
       "traces": [
         {
