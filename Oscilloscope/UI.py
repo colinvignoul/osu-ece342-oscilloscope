@@ -144,6 +144,14 @@ while True:
 
     if(counter == 100):
         led.toggle()
+        print("Vertical 1 Position:" + str(vert1_pos))
+        print("Horizontal 1 Position:" + str(horz1_pos))
+        print("Vertical 2 Position:" + str(vert2_pos))
+        print("Horizontal 2 Position:" + str(horz2_pos))
+        print("Vertical 1 scale:" + str(vert1_stretch))
+        print("Horizontal 1 scale:" + str(horz1_stretch))
+        print("Vertical 2 scale:" + str(vert2_stretch))
+        print("Horizontal 2 scale:" + str(horz2_stretch))
         print("Trigger 1 Level: " + str(trig1_pos) + "  Voltage 1: " + str(voltage1))
         print("Trigger 2 Level: " + str(trig2_pos) + "  Voltage 2: " + str(voltage2))
     utime.sleep(.01)
