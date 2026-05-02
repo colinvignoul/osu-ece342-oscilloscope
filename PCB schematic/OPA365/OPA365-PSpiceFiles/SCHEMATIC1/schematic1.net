@@ -1,0 +1,12 @@
+* source OPA365
+X_U1         N01370 N01210 VCC VEE VOUT OPA365
+V_V1         VCC 0 5Vdc
+V_V2         VEE 0 0Vdc
+V_V3         VINP 0  AC 1
++SIN 0 0.1 1e6 0 0 0
+R_Rload         VREF VOUT  1k TC=0,0 
+V_V4         VREF 0 2.5Vdc
+R_R2         0 N01210  1k TC=0,0 
+R_R1         N01210 VOUT  10k TC=0,0 
+R_R3         VINP N01370  1k TC=0,0 
+R_R4         N01370 VREF  10k TC=0,0 

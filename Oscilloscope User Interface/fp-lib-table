@@ -1,0 +1,6 @@
+(fp_lib_table
+	(version 7)
+	(lib (name "Library") (type "KiCad") (uri "C:/Users/ndgun/Downloads/MINI-SPDT-SW/Library.pretty") (options "") (descr ""))
+	(lib (name "MINI-SPDT-SW") (type "KiCad") (uri "C:/Users/ndgun/Downloads/MINI-SPDT-SW/Library.pretty/MINI-SPDT-SW.pretty") (options "") (descr ""))
+	(lib (name "MINI-SPDT-SW") (type "KiCad") (uri "${KIPRJMOD}/Switch Libraries/MINI-SPDT-SW.pretty") (options "") (descr ""))
+)

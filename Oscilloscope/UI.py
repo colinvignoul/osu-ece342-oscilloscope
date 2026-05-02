@@ -23,8 +23,8 @@ graph_scale = 1.25
 voltage1 = -1
 voltage2 = -0.5
 
-trigger1 = False
-trigger2 = False
+draw1 = False
+draw2 = False
 
 led = Pin("LED", Pin.OUT)
 
@@ -61,7 +61,7 @@ trig1_ready = False
 trig2_ready = False
 
 while True:
-    if (counter > 100):
+    if (counter > 500):
         counter = 0
     counter += 1
 
@@ -142,7 +142,7 @@ while True:
         trig2_ready = False
         print("Trigger 2 Activated")
 
-    if(counter == 100):
+    if(counter == 500):
         led.toggle()
         print("Vertical 1 Position:" + str(vert1_pos))
         print("Horizontal 1 Position:" + str(horz1_pos))
