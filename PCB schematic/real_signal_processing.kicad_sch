@@ -1537,6 +1537,16 @@
 	)
 	(wire
 		(pts
+			(xy 102.87 135.89) (xy 109.22 135.89)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5c4e20c6-bb15-4d0a-b8e5-ffa6bda818a5")
+	)
+	(wire
+		(pts
 			(xy 217.17 129.54) (xy 217.17 134.62)
 		)
 		(stroke
@@ -1874,6 +1884,16 @@
 			(justify right bottom)
 		)
 		(uuid "d83df66e-7f07-4286-92b9-c78fb6530b36")
+	)
+	(label "+1V25"
+		(at 102.87 135.89 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e3fcecc1-8446-4d0c-880d-9bc920266f41")
 	)
 	(label "s2_out"
 		(at 194.31 129.54 0)
@@ -2448,6 +2468,89 @@
 		)
 	)
 	(symbol
+		(lib_id "power:PWR_FLAG")
+		(at 102.87 135.89 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "32650af2-0d76-4206-b869-8cdc428940eb")
+		(property "Reference" "#FLG014"
+			(at 100.965 135.89 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "PWR_FLAG"
+			(at 111.506 137.414 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 102.87 135.89 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 102.87 135.89 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Special symbol for telling ERC where power comes from"
+			(at 102.87 135.89 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "599fab35-d7f3-4538-af91-17d928405fa3")
+		)
+		(instances
+			(project "input_conditioning_r2"
+				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/18133eb9-eb2a-4b3d-bf41-e9ec2bf3b2d8"
+					(reference "#FLG014")
+					(unit 1)
+				)
+				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/fc409c79-40d5-4bdd-8911-0d61a44a266d"
+					(reference "#FLG015")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:R")
 		(at 156.21 101.6 90)
 		(unit 1)
@@ -2692,6 +2795,88 @@
 				)
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/fc409c79-40d5-4bdd-8911-0d61a44a266d"
 					(reference "#PWR050")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+2V5")
+		(at 110.49 114.3 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "452ab02f-2b4f-4a88-b94e-2e6b7f1b7ebd")
+		(property "Reference" "#PWR074"
+			(at 110.49 118.11 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+2V5"
+			(at 110.49 109.22 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 110.49 114.3 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 110.49 114.3 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+2V5\""
+			(at 110.49 114.3 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "0e10b39e-9111-4426-aea9-fa94371eb0c7")
+		)
+		(instances
+			(project "input_conditioning_r2"
+				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/18133eb9-eb2a-4b3d-bf41-e9ec2bf3b2d8"
+					(reference "#PWR074")
+					(unit 1)
+				)
+				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/fc409c79-40d5-4bdd-8911-0d61a44a266d"
+					(reference "#PWR076")
 					(unit 1)
 				)
 			)
@@ -3985,88 +4170,6 @@
 	)
 	(symbol
 		(lib_id "power:+5V")
-		(at 109.22 135.89 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "a8fbe773-ebed-411a-9eb5-bc12317277d8")
-		(property "Reference" "#PWR078"
-			(at 109.22 139.7 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+5V"
-			(at 109.22 130.81 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 109.22 135.89 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 109.22 135.89 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+5V\""
-			(at 109.22 135.89 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "6beb570f-553a-42d7-a4ae-2c75482b44ce")
-		)
-		(instances
-			(project "input_conditioning_r2"
-				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/18133eb9-eb2a-4b3d-bf41-e9ec2bf3b2d8"
-					(reference "#PWR078")
-					(unit 1)
-				)
-				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/fc409c79-40d5-4bdd-8911-0d61a44a266d"
-					(reference "#PWR080")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+5V")
 		(at 128.27 158.75 0)
 		(unit 1)
 		(body_style 1)
@@ -4389,88 +4492,6 @@
 				)
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/fc409c79-40d5-4bdd-8911-0d61a44a266d"
 					(reference "#PWR061")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+5V")
-		(at 152.4 163.83 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "c7224ac3-5495-4685-a34b-e5d6f5f68687")
-		(property "Reference" "#PWR082"
-			(at 152.4 167.64 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+5V"
-			(at 152.4 158.75 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 152.4 163.83 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 152.4 163.83 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+5V\""
-			(at 152.4 163.83 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "f3dd286f-969b-4c2c-9c25-cc67d1505b64")
-		)
-		(instances
-			(project "input_conditioning_r2"
-				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/18133eb9-eb2a-4b3d-bf41-e9ec2bf3b2d8"
-					(reference "#PWR082")
-					(unit 1)
-				)
-				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/fc409c79-40d5-4bdd-8911-0d61a44a266d"
-					(reference "#PWR084")
 					(unit 1)
 				)
 			)
@@ -4835,6 +4856,88 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 152.4 163.83 270)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "e09cced3-bd0a-4d8f-afb2-cc72bdd77a7d")
+		(property "Reference" "#PWR078"
+			(at 146.05 163.83 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 148.59 163.8301 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 152.4 163.83 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 152.4 163.83 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 152.4 163.83 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "8c892a37-ac75-4ac0-b826-3b272d5e1103")
+		)
+		(instances
+			(project "input_conditioning_r2"
+				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/18133eb9-eb2a-4b3d-bf41-e9ec2bf3b2d8"
+					(reference "#PWR078")
+					(unit 1)
+				)
+				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/fc409c79-40d5-4bdd-8911-0d61a44a266d"
+					(reference "#PWR080")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:R")
 		(at 223.52 134.62 90)
 		(unit 1)
@@ -4995,88 +5098,6 @@
 				)
 				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/fc409c79-40d5-4bdd-8911-0d61a44a266d"
 					(reference "#PWR063")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+5V")
-		(at 110.49 114.3 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "f16691a0-d47e-4b93-bc10-6fad9d3eb4c1")
-		(property "Reference" "#PWR074"
-			(at 110.49 118.11 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+5V"
-			(at 110.49 109.22 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 110.49 114.3 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 110.49 114.3 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+5V\""
-			(at 110.49 114.3 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "fdabd17a-5b08-4371-a085-959b7f3807c1")
-		)
-		(instances
-			(project "input_conditioning_r2"
-				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/18133eb9-eb2a-4b3d-bf41-e9ec2bf3b2d8"
-					(reference "#PWR074")
-					(unit 1)
-				)
-				(path "/e8001732-a560-4bb6-87d1-5a7552612e81/fc409c79-40d5-4bdd-8911-0d61a44a266d"
-					(reference "#PWR076")
 					(unit 1)
 				)
 			)
