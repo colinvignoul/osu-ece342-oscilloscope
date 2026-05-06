@@ -78,7 +78,7 @@
         "duplicate_footprints": "warning",
         "extra_footprint": "warning",
         "footprint": "error",
-        "footprint_filters_mismatch": "ignore",
+        "footprint_filters_mismatch": "warning",
         "footprint_symbol_field_mismatch": "warning",
         "footprint_symbol_mismatch": "warning",
         "footprint_type_mismatch": "ignore",
@@ -668,7 +668,7 @@
         "uuid": "e8001732-a560-4bb6-87d1-5a7552612e81"
       }
     ],
-    "used_designators": "#FLG14-15,#PWR74,#PWR76,#PWR78,#PWR80,#PWR82,#PWR84,#PWR90-93,SW1-3,S1-2,R30-35,J1-3,J5-9,A1",
+    "used_designators": "",
     "variants": []
   },
   "sheets": [
