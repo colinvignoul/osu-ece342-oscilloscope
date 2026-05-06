@@ -2373,6 +2373,16 @@
 	)
 	(wire
 		(pts
+			(xy 242.57 85.09) (xy 251.46 85.09)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "112b3e6e-defd-4e67-99b4-f56e220830f7")
+	)
+	(wire
+		(pts
 			(xy 114.3 114.3) (xy 114.3 116.84)
 		)
 		(stroke
@@ -2533,16 +2543,6 @@
 	)
 	(wire
 		(pts
-			(xy 242.57 85.09) (xy 251.46 85.09)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4e936b45-9a2a-438d-98f8-dd0a418a950f")
-	)
-	(wire
-		(pts
 			(xy 54.61 137.16) (xy 54.61 148.59)
 		)
 		(stroke
@@ -2550,6 +2550,16 @@
 			(type default)
 		)
 		(uuid "4e997def-ccb1-47ad-b3ae-93532b8e8f32")
+	)
+	(wire
+		(pts
+			(xy 242.57 87.63) (xy 251.46 87.63)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "54fdb011-f70a-432a-a5f8-60e77532825e")
 	)
 	(wire
 		(pts
@@ -2843,16 +2853,6 @@
 	)
 	(wire
 		(pts
-			(xy 242.57 87.63) (xy 251.46 87.63)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cae5bc11-274b-4339-8b50-60af7a6886e1")
-	)
-	(wire
-		(pts
 			(xy 92.71 46.99) (xy 100.33 46.99)
 		)
 		(stroke
@@ -2942,7 +2942,7 @@
 		(uuid "40d63c98-9946-4c00-a9e4-0841f61c3df5")
 	)
 	(label "output_1"
-		(at 242.57 85.09 0)
+		(at 242.57 87.63 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3002,7 +3002,7 @@
 		(uuid "933a4fe8-8a58-4588-b1ea-d1ea89d0dbc8")
 	)
 	(label "output_2"
-		(at 242.57 87.63 0)
+		(at 242.57 85.09 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4501,7 +4501,7 @@
 		(at 256.54 74.93 0)
 		(unit 1)
 		(body_style 1)
-		(exclude_from_sim no)
+		(exclude_from_sim yes)
 		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
@@ -6272,7 +6272,7 @@
 				(justify left)
 			)
 		)
-		(pin "3V3" bidirectional
+		(pin "3V3" input
 			(at 166.37 114.3 180)
 			(uuid "1bf3cbdf-dc37-4b62-93df-212a2fbee38e")
 			(effects
