@@ -1,6 +1,7 @@
 /**
  * ILI9341 datasheet: https://cdn-shop.adafruit.com/datasheets/ILI9341.pdf
  * 
+ * TODO: re-write in C++, break into header+implementation files
  */
 
 #include <stdio.h>
@@ -45,7 +46,8 @@ static int dma_tx_channel;
 static dma_channel_config dma_tx_config;
 
 // Helper: Write a buffer to SPI using DMA and wait for completion
-void spi_write_dma_blocking(const uint8_t *data, size_t len) {
+void spi_write_dma_blocking(const uint8_t *data, size_t len)
+{
     dma_channel_configure(
         dma_tx_channel,
         &dma_tx_config,
@@ -63,7 +65,8 @@ void spi_write_dma_blocking(const uint8_t *data, size_t len) {
 }
 
 // Helper: Send Command
-void ili9341_write_cmd(uint8_t cmd) {
+void ili9341_write_cmd(uint8_t cmd)
+{
     gpio_put(PIN_SPI_DC, 0); // DC low for command
     gpio_put(PIN_SPI_CS, 0);
     spi_write_blocking(SPI_PORT, &cmd, 1);
@@ -71,7 +74,8 @@ void ili9341_write_cmd(uint8_t cmd) {
 }
 
 // Helper: Send Data
-void ili9341_write_data(uint8_t data) {
+void ili9341_write_data(uint8_t data)
+{
     gpio_put(PIN_SPI_DC, 1); // DC high for data
     gpio_put(PIN_SPI_CS, 0);
     spi_write_blocking(SPI_PORT, &data, 1);
@@ -79,14 +83,17 @@ void ili9341_write_data(uint8_t data) {
 }
 
 // Set the rectangular region that subsequent pixel writes will fill.
-void ili9341_set_addr_window(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
-    ili9341_write_cmd(0x2A); // Column Address Set
+void ili9341_set_addr_window(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
+{
+    // Column Address Set
+    ili9341_write_cmd(0x2A);
     ili9341_write_data(x0 >> 8);
     ili9341_write_data(x0 & 0xFF);
     ili9341_write_data(x1 >> 8);
     ili9341_write_data(x1 & 0xFF);
 
-    ili9341_write_cmd(0x2B); // Page Address Set
+    // Page Address Set
+    ili9341_write_cmd(0x2B);
     ili9341_write_data(y0 >> 8);
     ili9341_write_data(y0 & 0xFF);
     ili9341_write_data(y1 >> 8);
@@ -94,21 +101,24 @@ void ili9341_set_addr_window(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
 }
 
 // Send a prepared RGB565 pixel buffer to the display.
-void ili9341_write_pixels_dma(const uint8_t *pixels, size_t byte_count) {
+void ili9341_write_pixels_dma(const uint8_t *pixels, size_t byte_count)
+{
     ili9341_set_addr_window(0, 0, DISPLAY_WIDTH - 1, DISPLAY_HEIGHT - 1);
     ili9341_write_cmd(0x2C); // Memory Write
 
-    gpio_put(PIN_SPI_DC, 1); // data mode for pixel bytes
+    gpio_put(PIN_SPI_DC, 1); // Data mode for pixel bytes
     gpio_put(PIN_SPI_CS, 0);
     spi_write_dma_blocking(pixels, byte_count);
     gpio_put(PIN_SPI_CS, 1);
 }
 
-void ili9341_write_framebuffer_dma(void) {
+void ili9341_write_framebuffer_dma(void)
+{
     ili9341_write_pixels_dma(framebuffer, sizeof(framebuffer));
 }
 
-void framebuffer_set_pixel(int x, int y, uint16_t color) {
+void framebuffer_set_pixel(int x, int y, uint16_t color)
+{
     if (x < 0 || x >= DISPLAY_WIDTH || y < 0 || y >= DISPLAY_HEIGHT) {
         return;
     }
@@ -118,7 +128,8 @@ void framebuffer_set_pixel(int x, int y, uint16_t color) {
     framebuffer[pixel_index * 2 + 1] = color & 0xFF;
 }
 
-void framebuffer_fill(uint16_t color) {
+void framebuffer_fill(uint16_t color)
+{
     uint8_t color_high = color >> 8;
     uint8_t color_low = color & 0xFF;
 
@@ -128,12 +139,14 @@ void framebuffer_fill(uint16_t color) {
     }
 }
 
-static int abs_int(int value) {
+static int abs_int(int value)
+{
     return value < 0 ? -value : value;
 }
 
 // Simple integer line drawing so adjacent waveform samples connect visually.
-void framebuffer_draw_line(int x0, int y0, int x1, int y1, uint16_t color) {
+void framebuffer_draw_line(int x0, int y0, int x1, int y1, uint16_t color)
+{
     int dx = abs_int(x1 - x0);
     int sx = x0 < x1 ? 1 : -1;
     int dy = -abs_int(y1 - y0);
@@ -159,14 +172,16 @@ void framebuffer_draw_line(int x0, int y0, int x1, int y1, uint16_t color) {
     }
 }
 
-int sample_to_screen_y(int16_t sample) {
+int sample_to_screen_y(int16_t sample)
+{
     // Map signed 16-bit sample range [-32768, 32767] onto screen y coordinates.
     uint32_t shifted = (uint32_t)((int32_t)sample + 32768); // 0 to 65535
     return (DISPLAY_HEIGHT - 1) - (int)((shifted * (DISPLAY_HEIGHT - 1)) / 65535);
 }
 
 // Render a waveform sample buffer into the RGB565 framebuffer.
-void render_waveform_to_framebuffer(const int16_t *samples, uint32_t sample_count, uint16_t trace_color, uint16_t background_color) {
+void render_waveform_to_framebuffer(const int16_t *samples, uint32_t sample_count, uint16_t trace_color, uint16_t background_color)
+{
     framebuffer_fill(background_color);
 
     if (sample_count == 0) {
@@ -192,7 +207,8 @@ void render_waveform_to_framebuffer(const int16_t *samples, uint32_t sample_coun
 }
 
 // Initialize the ILI9341 Controller
-void ili9341_init() {
+void ili9341_init()
+{
     // Hardware reset pulse
     gpio_put(PIN_SPI_RST, 1); sleep_ms(5);
     gpio_put(PIN_SPI_RST, 0); sleep_ms(20);
@@ -208,19 +224,21 @@ void ili9341_init() {
     ili9341_write_data(0x55); // 16-bit RGB565
 
     ili9341_write_cmd(0x36); // Set Memory Access Control
-    ili9341_write_data(0b00101000); // Landscape orientation, BGR color order
+    ili9341_write_data(0x48); // Landscape orientation, BGR color order
 
     ili9341_write_cmd(0x29); // Display ON
     sleep_ms(100);
 }
 
 // Fill screen with a 16-bit RGB565 color
-void ili9341_fill_screen(uint16_t color) {
+void ili9341_fill_screen(uint16_t color)
+{
     framebuffer_fill(color);
     ili9341_write_framebuffer_dma();
 }
 
-int main() {
+int main()
+{
     // stdio_init_all();
     // sleep_ms(2000);
     
