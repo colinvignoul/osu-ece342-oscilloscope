@@ -9,6 +9,7 @@
 #include "pico/stdlib.h"
 #include "hardware/spi.h"
 #include "hardware/dma.h"
+#include <cstdint>
 
 // Define pins
 #define SPI_PORT spi0
@@ -18,6 +19,7 @@
 #define PIN_SPI_MOSI 19
 #define PIN_SPI_DC   20
 #define PIN_SPI_RST  21
+
 
 // Set SPI speed 
 #define SPI_HZ 62500000
@@ -280,7 +282,7 @@ int main()
     while (true) {
         for (uint32_t x = 0; x < DISPLAY_WIDTH; ++x) {
             uint32_t phase = (x + frame) % 80;
-            int32_t triangle = phase < 40 ? (int32_t)phase : (int32_t)(80 - phase);
+            int32_t triangle = phase < 40 ? (int32_t)(phase) : (int32_t)(80 - phase);
             waveform_samples[x] = (int16_t)(triangle * 1400 - 28000);
         }
 
