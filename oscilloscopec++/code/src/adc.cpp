@@ -2,14 +2,13 @@
 #include "hardware/adc.h"
 #include "hardware/dma.h"
 
-// Define the physical buffers with 32KB alignment.
-// This is strictly required for the DMA's ring buffer address wrapping feature.
-uint16_t buffer_ping[BUFFER_SAMPLES] __attribute__((aligned(BUFFER_BYTES)));
-uint16_t buffer_pong[BUFFER_SAMPLES] __attribute__((aligned(BUFFER_BYTES)));
+// Define a unified 64KB block of physical memory with strict 64KB alignment.
+// This is required for the RP2040 DMA's hardware ring address wrapping feature (2^16 = 65536 bytes).
+// Due to round-robin multiplexing, ADC0 lands on even indices, and ADC1 lands on odd indices.
+uint16_t combined_dma_buffer[BUFFER_SAMPLES * 2] __attribute__((aligned(BUFFER_BYTES * 2)));
 
-// Global handles to store the allocated hardware DMA channels
+// Global handle to store the allocated hardware DMA channel
 int dma_ping;
-int dma_pong;
 
 void init_adc_dma_ping_pong() {
 		// INITIALIZE ADC HARDWARE
@@ -31,34 +30,24 @@ void init_adc_dma_ping_pong() {
 		adc_set_clkdiv(95.0f); 
 
 		// ALLOCATE AND CONFIGURE DMA CHANNELS
-		// Claim two unused hardware DMA channels
+		// Claim one unused hardware DMA channel for continuous infinite ring wrapping
 		dma_ping = dma_claim_unused_channel(true);
-		dma_pong = dma_claim_unused_channel(true);
 
-		// Configure Ping Channel
+		// Configure DMA Channel as an infinite hardware ring buffer
 		dma_channel_config c_ping = dma_channel_get_default_config(dma_ping);
 		channel_config_set_read_increment(&c_ping, false); // Read from fixed ADC FIFO address
 		channel_config_set_write_increment(&c_ping, true); // Increment write pointer into RAM
 		channel_config_set_transfer_data_size(&c_ping, DMA_SIZE_16); // 16-bit data chunks
 		channel_config_set_dreq(&c_ping, DREQ_ADC); // Pace transfers to ADC clock speed
-		channel_config_set_ring(&c_ping, false, 15); // 2^15 = 32768 byte write ring wrap
-		channel_config_set_chain_to(&c_ping, dma_pong); // When Ping finishes, trigger Pong
-
-		// Configure Pong Channel
-		dma_channel_config c_pong = dma_channel_get_default_config(dma_pong);
-		channel_config_set_read_increment(&c_pong, false);
-		channel_config_set_write_increment(&c_pong, true);
-		channel_config_set_transfer_data_size(&c_pong, DMA_SIZE_16);
-		channel_config_set_dreq(&c_pong, DREQ_ADC);
-		channel_config_set_ring(&c_pong, false, 15);
-		channel_config_set_chain_to(&c_pong, dma_ping); // When Pong finishes, trigger Ping
+		channel_config_set_ring(&c_ping, false, 16); // 2^16 = 65536 byte write ring wrap (Infinite circular execution)
+		channel_config_set_chain_to(&c_ping, dma_ping); // Self-chaining keeps the channel indefinitely armed
 
 		// APPLY CONFIGURATIONS AND INITIALIZE HARDWARE COUNT
-		dma_channel_configure(dma_ping, &c_ping, buffer_ping, &adc_hw->fifo, BUFFER_SAMPLES, false);
-		dma_channel_configure(dma_pong, &c_pong, buffer_pong, &adc_hw->fifo, BUFFER_SAMPLES, false);
+		// Set transfer count to 0xFFFFFFFF for endless execution inside the hardware ring bitmask
+		dma_channel_configure(dma_ping, &c_ping, combined_dma_buffer, &adc_hw->fifo, 0xFFFFFFFF, false);
 
 		// KICKSTART HARDWARE LOOP
-		dma_channel_start(dma_ping); // Arm the Ping channel first
+		dma_channel_start(dma_ping); // Arm the unified channel first
 		adc_run(true); // Turn on the free-running hardware ADC clock
 }
 
@@ -72,20 +61,18 @@ void resume_adc_dma() {
 }
 
 void get_write_heads(dual_write_heads_t* heads) {
-		// Read the current remaining transfer counts directly from the hardware registers
+		// Read the current remaining transfer count directly from the hardware register
 		uint32_t ping_remaining = dma_hw->ch[dma_ping].transfer_count;
-		uint32_t pong_remaining = dma_hw->ch[dma_pong].transfer_count;
 
-		// Convert down-counter into the next slot to be written (0 to 16384 range)
-		uint32_t ping_next = BUFFER_SAMPLES - ping_remaining;
-		uint32_t pong_next = BUFFER_SAMPLES - pong_remaining;
+		// Convert down-counter into the global hardware index (0 to 32767 range)
+		uint32_t global_next = (0xFFFFFFFF - ping_remaining + 1) % (BUFFER_SAMPLES * 2);
 
-		// Handle out-of-bounds wrapping for an inactive/completed channel
-		if (ping_next >= BUFFER_SAMPLES) ping_next = 0;
-		if (pong_next >= BUFFER_SAMPLES) pong_next = 0;
+		// Pin down the next slots to be written for each sequence
+		uint32_t ping_next = global_next & ~1u; // Always even (ADC0)
+		uint32_t pong_next = global_next | 1u;  // Always odd (ADC1)
 
-		// Shift backward by 1 to get the actual LAST written sample.
-		// If next is 0, the last written sample is at the very end of the buffer (BUFFER_SAMPLES - 1)
-		heads->ping_write_index = (ping_next == 0) ? (BUFFER_SAMPLES - 1) : (ping_next - 1);
-		heads->pong_write_index = (pong_next == 0) ? (BUFFER_SAMPLES - 1) : (pong_next - 1);
+		// Shift backward by 2 steps to get the actual LAST written sample location for each channel.
+		// If the calculation drops below 0, wrap around safely to the end of the combined buffer.
+		heads->ping_write_index = (ping_next >= 2) ? (ping_next - 2) : ((BUFFER_SAMPLES * 2) - 2);
+		heads->pong_write_index = (pong_next >= 3) ? (pong_next - 2) : ((BUFFER_SAMPLES * 2) - 1);
 }

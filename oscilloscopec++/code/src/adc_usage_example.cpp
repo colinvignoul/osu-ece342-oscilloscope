@@ -4,9 +4,6 @@
 #include "adc_dma_setup.h"
 
 // NOTE: adc.cpp needs to be in the add_executable() field after adc.cpp to be linked
-// NOTE: there are two buffers for each channel, using two alternating dmas, this
-// should make things more simple and less error prone. this is a new change. they
-// are referred to as "ping" and "pong"
 
 // Example trigger criteria configurations
 #define TRIGGER_START_THRESHOLD 3000 // High ADC value to start copying
@@ -19,32 +16,45 @@
 // be able to zoom out and see a larger period of the waveform than just one trigger
 // cycle)
 
+// Macros to handle internal variable definitions matching your script's logic
+#define HARD_SAFETY_LIMIT MAX_SEARCH_SAMPLES
+#define SIGNAL_TRIGGER_START TRIGGER_START_THRESHOLD
+#define SIGNAL_TRIGGER_STOP TRIGGER_STOP_THRESHOLD
+
 void draw_loop_example() {
 		// Pause adc system
 		pause_adc_dma();
 
 		// Querry adc data buffer location of last samples
 		dual_write_heads_t heads;
-		get_write_heads(&heads); // NOTE: does this need to be manually freed later?
+		get_write_heads(&heads);
 
 		// Iterate through samples and check conditions (ping)
 		// NOTE: this only handles one of the two channels at a time; both ping and pong
-		// will need to be handled, and variables will need to be defined so that the
+		// will need to be handled, and variables may need to be defined so that the
 		// logic for both ping and pong do not collide.
-		int32_t lookback_idx = (int32_t)heads.ping_write_index;
+		// NOTE: the rest of the code until the adc is unpaused might best be contained
+		// in a function, so that we can just run
+		// it back to back on each of the values in the "heads" variable to
+		// do both of the channels independently and cleanly
+		int32_t lookback_idx = (int32_t)heads.ping_write_index; // Points directly to an EVEN index in the interleaved buffer
     
     int32_t sample_selection_start = -1;
     int32_t sample_selection_stop = -1;
     uint32_t inspected_samples_count = 0;
 
     while (inspected_samples_count < HARD_SAFETY_LIMIT) {
-        // Enforce boundary wrapping inside the 0 to 16,383 array bounds
+				// Enforce boundary wrapping inside the 0 to (BUFFER_SAMPLES * 2) - 1 array bounds.
+        // If lookback_idx drops below 0 (either -1 or -2 depending on where the step landed), 
+        // adding it directly to the total length mathematically ensures that:
+        // - An EVEN stream (ADC0) wraps precisely to the last even index: (BUFFER_SAMPLES * 2) - 2
+        // - An ODD stream (ADC1) wraps precisely to the last odd index: (BUFFER_SAMPLES * 2) - 1
         if (lookback_idx < 0) {
-            lookback_idx = BUFFER_SAMPLES - 1;
+            lookback_idx = (BUFFER_SAMPLES * 2) + lookback_idx; 
         }
 
         // Pull the historic data point directly out of the ring buffer
-        uint16_t sample = buffer_ping[lookback_idx];
+        uint16_t sample = combined_dma_buffer[lookback_idx];
 
         // Condition Check A: Find where the selection "ends" walking backward (the start trigger)
         if (sample_selection_start == -1 && sample > SIGNAL_TRIGGER_START) {
@@ -56,7 +66,7 @@ void draw_loop_example() {
             break; // Target selection found, terminate search loop
         }
 
-        lookback_idx--;
+        lookback_idx -= 2; // Step backward by 2 to stay strictly on ADC0 (Even indices)
         inspected_samples_count++;
     }
 
@@ -69,9 +79,9 @@ void draw_loop_example() {
         // Calculate total consecutive elements needed, factoring in array boundary wrapping
         uint32_t total_samples_to_copy;
         if (sample_selection_start >= sample_selection_stop) {
-            total_samples_to_copy = sample_selection_start - sample_selection_stop + 1;
+            total_samples_to_copy = ((sample_selection_start - sample_selection_stop) / 2) + 1;
         } else {
-            total_samples_to_copy = (BUFFER_SAMPLES - sample_selection_stop) + sample_selection_start + 1;
+            total_samples_to_copy = (((BUFFER_SAMPLES * 2) - sample_selection_stop + sample_selection_start) / 2) + 1;
         }
 
         // Dynamically allocate fresh memory block on the heap
@@ -81,13 +91,15 @@ void draw_loop_example() {
             // Read forward from the chronological beginning (stop trigger) to the end (start trigger)
             int32_t copy_cursor = sample_selection_stop;
             for (uint32_t i = 0; i < total_samples_to_copy; i++) {
-                if (copy_cursor >= BUFFER_SAMPLES) {
-                    copy_cursor = 0; // Handle forward wrap around the ring boundary
-                }
+								if (copy_cursor >= (BUFFER_SAMPLES * 2)) {
+										// Subtracting the total size ensures an even cursor wraps to 0, 
+										// and an odd cursor wraps precisely to 1.
+										copy_cursor = copy_cursor - (BUFFER_SAMPLES * 2); 
+								}
                 
                 // Copy the selection into consecutive memory space
-                freshly_allocated_buffer[i] = buffer_ping[copy_cursor];
-                copy_cursor++;
+                freshly_allocated_buffer[i] = combined_dma_buffer[copy_cursor];
+                copy_cursor += 2; // Step forward by 2 to stay strictly on ADC0 (Even indices)
             }
 
             // ----------------------------------------------------------------
@@ -115,10 +127,9 @@ void draw_loop_example() {
 int main() {
 		stdio_init_all();
 
-		init_adc_dma_ping_pong()
+		init_adc_dma_ping_pong();
 
 		while (1) {
-		draw_loop_example()
+		draw_loop_example();
 		}
-
 }
