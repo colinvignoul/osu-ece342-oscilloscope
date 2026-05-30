@@ -65,6 +65,8 @@ target_include_directories(${EXEC_NAME} PRIVATE
 target_link_libraries(${EXEC_NAME}
         hardware_spi
         hardware_dma
+				hardware_adc
+				hardware_gpio
 )
 
 pico_add_extra_outputs(${EXEC_NAME})
