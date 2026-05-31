@@ -1,3 +1,5 @@
-./Oscilloscope User Interface/Oscilloscope User Interface-backups/*
-./PCB schematic/input_conditioning_r2-backups/*
-./code/build/*
+Oscilloscope User Interface/Oscilloscope User Interface-backups/
+PCB schematic/input_conditioning_r2-backups/
+code/build/
+Oscilloscope User Interface/.history/
+PCB schematic/.history/
