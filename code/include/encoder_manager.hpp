@@ -1,5 +1,5 @@
-// Purpose: Declares input support for trigger, vertical, and horizontal rotary
-// encoders plus two active-high switches.
+// Purpose: Declares input support for trigger, shift, and scale rotary encoders
+// plus active-high channel and horizontal-axis switches.
 // Interface: init() configures GPIOs/encoder IRQs, then poll() returns
 // switch levels and drained rotary deltas as InputEvents.
 // Constraints: Encoder A/B inputs use pull-ups and GPIO interrupts; switches use
@@ -16,8 +16,8 @@
 
 namespace picoscope {
 
-// Owns decoder and switch state for the trigger, vertical-axis, horizontal-axis,
-// active-channel, and shift/scale controls.
+// Owns decoder and switch state for the trigger, shift, scale, active-channel,
+// and vertical/horizontal controls.
 class EncoderManager {
 public:
     // Takes no inputs, initializes all encoder/switch GPIOs, IRQs, and decoder
@@ -75,14 +75,14 @@ private:
     static void gpio_callback(unsigned int gpio, std::uint32_t events);
 
     EncoderState trigger_ = {};
-    EncoderState vertical_ = {};
-    EncoderState horizontal_ = {};
+    EncoderState shift_ = {};
+    EncoderState scale_ = {};
     SwitchState channel_switch_ = {};
-    SwitchState shift_scale_switch_ = {};
+    SwitchState horizontal_switch_ = {};
 
     volatile std::int32_t pending_trigger_delta_ = 0;
-    volatile std::int32_t pending_vertical_delta_ = 0;
-    volatile std::int32_t pending_horizontal_delta_ = 0;
+    volatile std::int32_t pending_shift_delta_ = 0;
+    volatile std::int32_t pending_scale_delta_ = 0;
 
     static EncoderManager *active_instance_;
 };

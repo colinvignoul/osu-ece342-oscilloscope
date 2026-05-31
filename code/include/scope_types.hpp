@@ -27,11 +27,11 @@ enum class TriggerEdge : std::uint8_t {
     Falling = 1,
 };
 
-// Axis edit mode selects whether the vertical/horizontal encoders shift
-// position or change scale.
-enum class AxisEditMode : std::uint8_t {
-    Shift = 0,
-    Scale = 1,
+// Control axis selects whether the shift/scale encoders affect vertical or
+// horizontal scope controls.
+enum class ControlAxis : std::uint8_t {
+    Vertical = 0,
+    Horizontal = 1,
 };
 
 // Frame origin tells diagnostics whether the capture came from a real trigger
@@ -130,7 +130,7 @@ struct ScopeSettings {
     ChannelSettings channels[2] = {};
     TriggerSettings trigger = {};
     Channel active_channel = Channel::Ch1;
-    AxisEditMode axis_edit_mode = AxisEditMode::Shift;
+    ControlAxis control_axis = ControlAxis::Vertical;
     std::uint8_t timebase_index = config::kDefaultTimebaseIndex;
     bool running = true;
 };
@@ -138,10 +138,10 @@ struct ScopeSettings {
 // Input snapshot returned by one EncoderManager poll.
 struct InputEvents {
     std::int16_t trigger_delta = 0;
-    std::int16_t vertical_delta = 0;
-    std::int16_t horizontal_delta = 0;
+    std::int16_t shift_delta = 0;
+    std::int16_t scale_delta = 0;
     bool channel_switch_active = false;
-    bool shift_scale_switch_active = false;
+    bool horizontal_switch_active = false;
 };
 
 // One display column keeps the min/max seen during its decimation window rather

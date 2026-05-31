@@ -56,11 +56,11 @@ void EncoderManager::init()
 {
     active_instance_ = this;
 
-    init_encoder(horizontal_, config::kHorizontalEncA, config::kHorizontalEncB);
-    init_encoder(vertical_, config::kVerticalEncA, config::kVerticalEncB);
+    init_encoder(shift_, config::kShiftEncA, config::kShiftEncB);
+    init_encoder(scale_, config::kScaleEncA, config::kScaleEncB);
     init_encoder(trigger_, config::kTriggerEncA, config::kTriggerEncB);
     init_switch(channel_switch_, config::kChannelSwitch);
-    init_switch(shift_scale_switch_, config::kShiftScaleSwitch);
+    init_switch(horizontal_switch_, config::kHorizontalSwitch);
 }
 
 // Takes no inputs, polls switches, drains queued encoder state, and returns
@@ -70,7 +70,7 @@ InputEvents EncoderManager::poll()
     InputEvents events = {};
     drain_pending_deltas(events);
     events.channel_switch_active = sample_switch(channel_switch_);
-    events.shift_scale_switch_active = sample_switch(shift_scale_switch_);
+    events.horizontal_switch_active = sample_switch(horizontal_switch_);
     return events;
 }
 
@@ -130,12 +130,12 @@ void EncoderManager::drain_pending_deltas(InputEvents &events)
     const std::uint32_t interrupts = save_and_disable_interrupts();
 
     events.trigger_delta = clamp_delta(pending_trigger_delta_);
-    events.vertical_delta = clamp_delta(pending_vertical_delta_);
-    events.horizontal_delta = clamp_delta(pending_horizontal_delta_);
+    events.shift_delta = clamp_delta(pending_shift_delta_);
+    events.scale_delta = clamp_delta(pending_scale_delta_);
 
     pending_trigger_delta_ = 0;
-    pending_vertical_delta_ = 0;
-    pending_horizontal_delta_ = 0;
+    pending_shift_delta_ = 0;
+    pending_scale_delta_ = 0;
 
     restore_interrupts(interrupts);
 }
@@ -171,13 +171,13 @@ void EncoderManager::queue_encoder_delta(EncoderState &encoder, std::int8_t delt
         return;
     }
 
-    if (&encoder == &vertical_) {
-        pending_vertical_delta_ += delta;
+    if (&encoder == &shift_) {
+        pending_shift_delta_ += delta;
         return;
     }
 
-    if (&encoder == &horizontal_) {
-        pending_horizontal_delta_ += delta;
+    if (&encoder == &scale_) {
+        pending_scale_delta_ += delta;
     }
 }
 
@@ -188,11 +188,11 @@ EncoderManager::EncoderState *EncoderManager::encoder_for_gpio(std::uint8_t gpio
     if (gpio == trigger_.pin_a || gpio == trigger_.pin_b) {
         return &trigger_;
     }
-    if (gpio == vertical_.pin_a || gpio == vertical_.pin_b) {
-        return &vertical_;
+    if (gpio == shift_.pin_a || gpio == shift_.pin_b) {
+        return &shift_;
     }
-    if (gpio == horizontal_.pin_a || gpio == horizontal_.pin_b) {
-        return &horizontal_;
+    if (gpio == scale_.pin_a || gpio == scale_.pin_b) {
+        return &scale_;
     }
     return nullptr;
 }

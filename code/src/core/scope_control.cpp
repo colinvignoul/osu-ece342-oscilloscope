@@ -39,9 +39,9 @@ Channel channel_from_switch(bool active)
     return active ? Channel::Ch2 : Channel::Ch1;
 }
 
-AxisEditMode axis_edit_mode_from_switch(bool active)
+ControlAxis control_axis_from_switch(bool active)
 {
-    return active ? AxisEditMode::Scale : AxisEditMode::Shift;
+    return active ? ControlAxis::Horizontal : ControlAxis::Vertical;
 }
 
 bool apply_horizontal_position_delta(ChannelSettings &channel, std::int16_t delta)
@@ -132,10 +132,9 @@ ScopeUpdate apply_input_events(ScopeSettings &settings, const InputEvents &event
         request_capture_reset(update);
     }
 
-    const AxisEditMode selected_axis_mode =
-        axis_edit_mode_from_switch(events.shift_scale_switch_active);
-    if (settings.axis_edit_mode != selected_axis_mode) {
-        settings.axis_edit_mode = selected_axis_mode;
+    const ControlAxis selected_axis = control_axis_from_switch(events.horizontal_switch_active);
+    if (settings.control_axis != selected_axis) {
+        settings.control_axis = selected_axis;
         request_redraw(update);
     }
 
@@ -153,21 +152,21 @@ ScopeUpdate apply_input_events(ScopeSettings &settings, const InputEvents &event
     }
 
     ChannelSettings &channel = settings.channels[channel_index(settings.active_channel)];
-    if (settings.axis_edit_mode == AxisEditMode::Shift) {
-        if (apply_vertical_position_delta(channel, events.vertical_delta)) {
+    if (settings.control_axis == ControlAxis::Vertical) {
+        if (apply_vertical_position_delta(channel, events.shift_delta)) {
             request_redraw(update);
         }
-        if (apply_horizontal_position_delta(channel, events.horizontal_delta)) {
+        if (apply_volts_scale_delta(channel, events.scale_delta)) {
             request_redraw(update);
         }
     } else {
-        if (apply_volts_scale_delta(channel, events.vertical_delta)) {
+        if (apply_horizontal_position_delta(channel, events.shift_delta)) {
             request_redraw(update);
         }
-        if (events.horizontal_delta != 0) {
+        if (events.scale_delta != 0) {
             const std::int32_t requested =
                 static_cast<std::int32_t>(settings.timebase_index) +
-                events.horizontal_delta;
+                events.scale_delta;
             const std::uint8_t clamped =
                 clamp_table_index(requested, config::kTimebaseCount);
             if (clamped != settings.timebase_index) {

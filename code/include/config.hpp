@@ -88,14 +88,14 @@ constexpr std::uint8_t kTriggerArmDwellSamples = 3u;
 constexpr std::uint16_t kTriggerOppositeEdgeHoldoffColumns = 2u;
 constexpr std::uint16_t kTriggerOppositeEdgeHoldoffMinimumPairs = 16u;
 
-constexpr std::uint8_t kHorizontalEncA = 0;
-constexpr std::uint8_t kHorizontalEncB = 1;
-constexpr std::uint8_t kVerticalEncA = 6;
-constexpr std::uint8_t kVerticalEncB = 2;
+constexpr std::uint8_t kShiftEncA = 0;
+constexpr std::uint8_t kShiftEncB = 1;
+constexpr std::uint8_t kScaleEncA = 6;
+constexpr std::uint8_t kScaleEncB = 2;
 constexpr std::uint8_t kTriggerEncA = 3;
 constexpr std::uint8_t kTriggerEncB = 4;
 constexpr std::uint8_t kChannelSwitch = 5;
-constexpr std::uint8_t kShiftScaleSwitch = 7;
+constexpr std::uint8_t kHorizontalSwitch = 7;
 constexpr bool kSwitchActiveLevel = true;
 
 // RGB565 pixels are stored in host memory as 16-bit words ready for display DMA.
