@@ -1,11 +1,11 @@
 // Purpose: Implements IRQ-driven GPIO sampling for rotary encoders and
-// debounced polling for standalone push buttons.
+// debounced polling for active-high buttons.
 // Interface: EncoderManager produces InputEvents from three configured
-// encoders plus two configured standalone buttons.
+// encoders plus two configured buttons.
 // Constraints: Encoder GPIOs are pull-up inputs, button pressed level comes
 // from config, buttons are debounced in microseconds, and queued encoder deltas
 // are drained atomically from poll().
-// Ownership: EncoderManager owns decoder/debounce state; GPIO hardware remains
+// Ownership: EncoderManager owns decoder and button state; GPIO hardware remains
 // managed through Pico SDK calls.
 
 #include "encoder_manager.hpp"
@@ -30,7 +30,7 @@ bool read_pin(std::uint8_t pin)
 // returns true when pressed.
 bool read_button_pressed(std::uint8_t pin)
 {
-    return read_pin(pin) == config::kStandaloneButtonPressedLevel;
+    return read_pin(pin) == config::kButtonPressedLevel;
 }
 
 // Takes a signed 32-bit delta, clamps it to the InputEvents field width, and
@@ -56,23 +56,21 @@ void EncoderManager::init()
 {
     active_instance_ = this;
 
+    init_encoder(horizontal_, config::kHorizontalEncA, config::kHorizontalEncB);
+    init_encoder(vertical_, config::kVerticalEncA, config::kVerticalEncB);
     init_encoder(trigger_, config::kTriggerEncA, config::kTriggerEncB);
-    init_encoder(voltage_, config::kVoltageEncA, config::kVoltageEncB);
-    init_encoder(time_, config::kTimeEncA, config::kTimeEncB);
     init_button(channel_button_, config::kChannelButton);
-    init_button(run_button_, config::kRunButton);
+    init_button(shift_scale_button_, config::kShiftScaleButton);
 }
 
-// Takes no inputs, polls all encoder/button state once, and returns the
-// resulting input events.
+// Takes no inputs, polls buttons, drains queued encoder state, and returns
+// the resulting input events.
 InputEvents EncoderManager::poll()
 {
     InputEvents events = {};
-    events.trigger_delta = drain_encoder_delta(trigger_);
-    events.voltage_delta = drain_encoder_delta(voltage_);
-    events.time_delta = drain_encoder_delta(time_);
+    drain_pending_deltas(events);
     events.channel_button_pressed = poll_button_pressed(channel_button_);
-    events.run_button_pressed = poll_button_pressed(run_button_);
+    events.shift_scale_button_pressed = poll_button_pressed(shift_scale_button_);
     return events;
 }
 
@@ -84,7 +82,6 @@ void EncoderManager::init_encoder(EncoderState &encoder,
 {
     encoder.pin_a = pin_a;
     encoder.pin_b = pin_b;
-    encoder.pending_delta = 0;
     encoder.last_interrupt_us = 0;
 
     gpio_init(pin_a);
@@ -105,15 +102,15 @@ void EncoderManager::init_encoder(EncoderState &encoder,
                                        &EncoderManager::gpio_callback);
 }
 
-// Takes button storage plus a GPIO pin, configures the standalone button input,
-// seeds debounce state, and returns nothing.
+// Takes button storage plus a GPIO pin, configures the button input, seeds
+// debounce state, and returns nothing.
 void EncoderManager::init_button(ButtonState &button, std::uint8_t pin)
 {
     button.pin = pin;
 
     gpio_init(pin);
     gpio_set_dir(pin, GPIO_IN);
-    if (config::kStandaloneButtonPressedLevel) {
+    if (config::kButtonPressedLevel) {
         gpio_pull_down(pin);
     } else {
         gpio_pull_up(pin);
@@ -124,15 +121,21 @@ void EncoderManager::init_button(ButtonState &button, std::uint8_t pin)
     button.last_change_us = time_us_64();
 }
 
-// Takes one encoder state, atomically drains queued detents since the previous
-// poll, and returns the signed delta.
-std::int16_t EncoderManager::drain_encoder_delta(EncoderState &encoder)
+// Takes no inputs, atomically drains queued rotary movement into an InputEvents
+// value and clears the pending counters.
+void EncoderManager::drain_pending_deltas(InputEvents &events)
 {
     const std::uint32_t interrupts = save_and_disable_interrupts();
-    const std::int32_t delta = encoder.pending_delta;
-    encoder.pending_delta = 0;
+
+    events.trigger_delta = clamp_delta(pending_trigger_delta_);
+    events.vertical_delta = clamp_delta(pending_vertical_delta_);
+    events.horizontal_delta = clamp_delta(pending_horizontal_delta_);
+
+    pending_trigger_delta_ = 0;
+    pending_vertical_delta_ = 0;
+    pending_horizontal_delta_ = 0;
+
     restore_interrupts(interrupts);
-    return clamp_delta(delta);
 }
 
 // Takes one button state, updates debounce timing from the configured button,
@@ -161,8 +164,8 @@ bool EncoderManager::poll_button_pressed(ButtonState &button)
 }
 
 // Takes a GPIO number from the shared IRQ callback, updates the matching
-// encoder decoder, and queues any resulting detent delta.
-void EncoderManager::handle_encoder_irq(std::uint8_t gpio)
+// encoder decoder, and queues any resulting movement.
+void EncoderManager::handle_gpio_irq(std::uint8_t gpio)
 {
     EncoderState *encoder = encoder_for_gpio(gpio);
     if (encoder == nullptr) {
@@ -178,7 +181,26 @@ void EncoderManager::handle_encoder_irq(std::uint8_t gpio)
     const std::int8_t delta =
         encoder->decoder.update(read_pin(encoder->pin_a), read_pin(encoder->pin_b));
     if (delta != 0) {
-        encoder->pending_delta += delta;
+        queue_encoder_delta(*encoder, delta);
+    }
+}
+
+// Takes an encoder and a per-transition delta, queues it for the next poll, and
+// returns nothing.
+void EncoderManager::queue_encoder_delta(EncoderState &encoder, std::int8_t delta)
+{
+    if (&encoder == &trigger_) {
+        pending_trigger_delta_ += delta;
+        return;
+    }
+
+    if (&encoder == &vertical_) {
+        pending_vertical_delta_ += delta;
+        return;
+    }
+
+    if (&encoder == &horizontal_) {
+        pending_horizontal_delta_ += delta;
     }
 }
 
@@ -189,11 +211,11 @@ EncoderManager::EncoderState *EncoderManager::encoder_for_gpio(std::uint8_t gpio
     if (gpio == trigger_.pin_a || gpio == trigger_.pin_b) {
         return &trigger_;
     }
-    if (gpio == voltage_.pin_a || gpio == voltage_.pin_b) {
-        return &voltage_;
+    if (gpio == vertical_.pin_a || gpio == vertical_.pin_b) {
+        return &vertical_;
     }
-    if (gpio == time_.pin_a || gpio == time_.pin_b) {
-        return &time_;
+    if (gpio == horizontal_.pin_a || gpio == horizontal_.pin_b) {
+        return &horizontal_;
     }
     return nullptr;
 }
@@ -206,7 +228,7 @@ void EncoderManager::gpio_callback(unsigned int gpio, std::uint32_t events)
     if (active_instance_ == nullptr) {
         return;
     }
-    active_instance_->handle_encoder_irq(static_cast<std::uint8_t>(gpio));
+    active_instance_->handle_gpio_irq(static_cast<std::uint8_t>(gpio));
 }
 
 } // namespace picoscope

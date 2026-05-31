@@ -253,13 +253,15 @@ void StripRenderer::draw_trace(std::uint8_t strip_index,
     bool have_previous = false;
     int previous_x = 0;
     int previous_y = 0;
+    const int horizontal_offset = settings_.channels[ch].horizontal_offset_columns;
 
-    for (std::uint16_t x = 0; x < config::kDisplayWidth; ++x) {
-        const ColumnSampleBucket &bucket = frame_.columns[x];
+    for (std::uint16_t source_x = 0; source_x < config::kDisplayWidth; ++source_x) {
+        const ColumnSampleBucket &bucket = frame_.columns[source_x];
         if (!has_column_value(bucket, ch)) {
             have_previous = false;
             continue;
         }
+        const int x = static_cast<int>(source_x) + horizontal_offset;
 
         int y_top = raw_to_screen_y(bucket.max_count[ch], settings_.channels[ch]);
         int y_bottom = raw_to_screen_y(bucket.min_count[ch], settings_.channels[ch]);

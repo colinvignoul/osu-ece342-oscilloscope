@@ -27,6 +27,13 @@ enum class TriggerEdge : std::uint8_t {
     Falling = 1,
 };
 
+// Axis edit mode selects whether the vertical/horizontal encoders shift
+// position or change scale.
+enum class AxisEditMode : std::uint8_t {
+    Shift = 0,
+    Scale = 1,
+};
+
 // Frame origin tells diagnostics whether the capture came from a real trigger
 // crossing, an auto-refresh, or no completed acquisition yet.
 enum class FrameOrigin : std::uint8_t {
@@ -55,6 +62,7 @@ struct ChannelSettings {
     bool enabled = true;
     config::Rgb565 color = config::kColorCh1;
     std::uint8_t volts_scale_index = config::kDefaultVoltsScaleIndex;
+    std::int16_t horizontal_offset_columns = 0;
     float vertical_offset_divs = 0.0f;
     Calibration calibration = {};
 };
@@ -122,17 +130,18 @@ struct ScopeSettings {
     ChannelSettings channels[2] = {};
     TriggerSettings trigger = {};
     Channel active_channel = Channel::Ch1;
+    AxisEditMode axis_edit_mode = AxisEditMode::Shift;
     std::uint8_t timebase_index = config::kDefaultTimebaseIndex;
     bool running = true;
 };
 
-// Edge-like input snapshot returned by one EncoderManager poll.
+// Input snapshot returned by one EncoderManager poll.
 struct InputEvents {
     std::int16_t trigger_delta = 0;
-    std::int16_t voltage_delta = 0;
-    std::int16_t time_delta = 0;
+    std::int16_t vertical_delta = 0;
+    std::int16_t horizontal_delta = 0;
     bool channel_button_pressed = false;
-    bool run_button_pressed = false;
+    bool shift_scale_button_pressed = false;
 };
 
 // One display column keeps the min/max seen during its decimation window rather

@@ -1,5 +1,7 @@
 #include "scope_control.hpp"
 
+#include <limits>
+
 namespace picoscope {
 namespace {
 
@@ -15,10 +17,10 @@ T clamp_value(T value, T low, T high)
     return value;
 }
 
-std::uint8_t clamp_table_index(std::int16_t index, std::size_t count)
+std::uint8_t clamp_table_index(std::int32_t index, std::size_t count)
 {
-    const std::int16_t last = static_cast<std::int16_t>(count - 1u);
-    return static_cast<std::uint8_t>(clamp_value<std::int16_t>(index, 0, last));
+    const std::int32_t last = static_cast<std::int32_t>(count - 1u);
+    return static_cast<std::uint8_t>(clamp_value<std::int32_t>(index, 0, last));
 }
 
 void request_redraw(ScopeUpdate &update)
@@ -30,6 +32,59 @@ void request_capture_reset(ScopeUpdate &update)
 {
     update.redraw = true;
     update.reset_capture = true;
+}
+
+AxisEditMode other_axis_edit_mode(AxisEditMode mode)
+{
+    return mode == AxisEditMode::Shift ? AxisEditMode::Scale : AxisEditMode::Shift;
+}
+
+bool apply_horizontal_position_delta(ChannelSettings &channel, std::int16_t delta)
+{
+    if (delta == 0) {
+        return false;
+    }
+
+    const std::int32_t requested =
+        static_cast<std::int32_t>(channel.horizontal_offset_columns) +
+        static_cast<std::int32_t>(delta) *
+            config::kPositionEncoderPixelsPerTransition;
+    const std::int16_t clamped = static_cast<std::int16_t>(
+        clamp_value<std::int32_t>(requested,
+                                  std::numeric_limits<std::int16_t>::min(),
+                                  std::numeric_limits<std::int16_t>::max()));
+    if (clamped == channel.horizontal_offset_columns) {
+        return false;
+    }
+    channel.horizontal_offset_columns = clamped;
+    return true;
+}
+
+bool apply_vertical_position_delta(ChannelSettings &channel, std::int16_t delta)
+{
+    if (delta == 0) {
+        return false;
+    }
+
+    channel.vertical_offset_divs +=
+        static_cast<float>(delta) * config::kVerticalOffsetDivsPerTransition;
+    return true;
+}
+
+bool apply_volts_scale_delta(ChannelSettings &channel, std::int16_t delta)
+{
+    if (delta == 0) {
+        return false;
+    }
+
+    const std::int32_t requested =
+        static_cast<std::int32_t>(channel.volts_scale_index) + delta;
+    const std::uint8_t clamped = clamp_table_index(requested, config::kVoltsScaleCount);
+    if (clamped == channel.volts_scale_index) {
+        return false;
+    }
+    channel.volts_scale_index = clamped;
+    return true;
 }
 
 } // namespace
@@ -64,11 +119,22 @@ ScopeUpdate apply_input_events(ScopeSettings &settings, const InputEvents &event
 {
     ScopeUpdate update = {};
 
+    if (events.channel_button_pressed) {
+        settings.active_channel = other_channel(settings.active_channel);
+        settings.trigger.source = settings.active_channel;
+        request_capture_reset(update);
+    }
+
+    if (events.shift_scale_button_pressed) {
+        settings.axis_edit_mode = other_axis_edit_mode(settings.axis_edit_mode);
+        request_redraw(update);
+    }
+
     if (events.trigger_delta != 0) {
         const std::int32_t requested =
             static_cast<std::int32_t>(settings.trigger.level_count) +
             static_cast<std::int32_t>(events.trigger_delta) *
-                config::kTriggerEncoderCountsPerDetent;
+                config::kTriggerEncoderCountsPerTransition;
         const std::uint16_t clamped = static_cast<std::uint16_t>(
             clamp_value<std::int32_t>(requested, 0, config::kAdcMaxCount));
         if (clamped != settings.trigger.level_count) {
@@ -77,36 +143,29 @@ ScopeUpdate apply_input_events(ScopeSettings &settings, const InputEvents &event
         }
     }
 
-    if (events.voltage_delta != 0) {
-        ChannelSettings &channel = settings.channels[channel_index(settings.active_channel)];
-        const std::int16_t requested =
-            static_cast<std::int16_t>(channel.volts_scale_index) + events.voltage_delta;
-        const std::uint8_t clamped = clamp_table_index(requested, config::kVoltsScaleCount);
-        if (clamped != channel.volts_scale_index) {
-            channel.volts_scale_index = clamped;
+    ChannelSettings &channel = settings.channels[channel_index(settings.active_channel)];
+    if (settings.axis_edit_mode == AxisEditMode::Shift) {
+        if (apply_vertical_position_delta(channel, events.vertical_delta)) {
             request_redraw(update);
         }
-    }
-
-    if (events.channel_button_pressed) {
-        settings.active_channel = other_channel(settings.active_channel);
-        settings.trigger.source = settings.active_channel;
-        request_capture_reset(update);
-    }
-
-    if (events.time_delta != 0) {
-        const std::int16_t requested =
-            static_cast<std::int16_t>(settings.timebase_index) + events.time_delta;
-        const std::uint8_t clamped = clamp_table_index(requested, config::kTimebaseCount);
-        if (clamped != settings.timebase_index) {
-            settings.timebase_index = clamped;
-            request_capture_reset(update);
+        if (apply_horizontal_position_delta(channel, events.horizontal_delta)) {
+            request_redraw(update);
         }
-    }
-
-    if (events.run_button_pressed) {
-        settings.running = !settings.running;
-        request_capture_reset(update);
+    } else {
+        if (apply_volts_scale_delta(channel, events.vertical_delta)) {
+            request_redraw(update);
+        }
+        if (events.horizontal_delta != 0) {
+            const std::int32_t requested =
+                static_cast<std::int32_t>(settings.timebase_index) +
+                events.horizontal_delta;
+            const std::uint8_t clamped =
+                clamp_table_index(requested, config::kTimebaseCount);
+            if (clamped != settings.timebase_index) {
+                settings.timebase_index = clamped;
+                request_capture_reset(update);
+            }
+        }
     }
 
     return update;

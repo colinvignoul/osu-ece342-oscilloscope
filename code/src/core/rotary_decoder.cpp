@@ -1,14 +1,11 @@
 // Purpose: Implements a table-driven quadrature decoder for mechanical rotary
 // encoder AB signals.
 // Interface: Call reset() with initial pin levels, then update() with sampled
-// levels to receive whole-detent movement.
-// Constraints: The transition table ignores invalid two-bit jumps and emits one
-// step only after kEncoderTransitionsPerDetent valid transitions.
+// levels to receive per-transition movement.
+// Constraints: The transition table ignores invalid two-bit jumps.
 // Ownership: The decoder owns no GPIO resources; callers supply sampled states.
 
 #include "rotary_decoder.hpp"
-
-#include "config.hpp"
 
 namespace picoscope {
 namespace {
@@ -31,16 +28,13 @@ std::uint8_t encode_state(bool a, bool b)
 
 } // namespace
 
-// Takes current A/B levels, seeds previous state and clears accumulated motion,
-// and returns nothing.
+// Takes current A/B levels, seeds previous state, and returns nothing.
 void QuadratureDecoder::reset(bool a, bool b)
 {
     previous_state_ = encode_state(a, b);
-    accumulator_ = 0;
 }
 
-// Takes current A/B levels, accumulates valid quadrature transitions, and
-// returns -1, 0, or 1 whole detents.
+// Takes current A/B levels and returns -1, 0, or 1 for this transition.
 std::int8_t QuadratureDecoder::update(bool a, bool b)
 {
     const std::uint8_t state = encode_state(a, b);
@@ -48,18 +42,7 @@ std::int8_t QuadratureDecoder::update(bool a, bool b)
         static_cast<std::uint8_t>((previous_state_ << 2u) | state);
     previous_state_ = state;
 
-    accumulator_ += kTransitionTable[transition];
-
-    // These encoders produce four valid quadrature transitions per detent.
-    if (accumulator_ >= static_cast<std::int8_t>(config::kEncoderTransitionsPerDetent)) {
-        accumulator_ = 0;
-        return 1;
-    }
-    if (accumulator_ <= -static_cast<std::int8_t>(config::kEncoderTransitionsPerDetent)) {
-        accumulator_ = 0;
-        return -1;
-    }
-    return 0;
+    return kTransitionTable[transition];
 }
 
 } // namespace picoscope
