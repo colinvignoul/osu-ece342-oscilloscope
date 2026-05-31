@@ -1,0 +1,212 @@
+// Purpose: Implements IRQ-driven GPIO sampling for rotary encoders and
+// debounced polling for standalone push buttons.
+// Interface: EncoderManager produces InputEvents from three configured
+// encoders plus two configured standalone buttons.
+// Constraints: Encoder GPIOs are pull-up inputs, button pressed level comes
+// from config, buttons are debounced in microseconds, and queued encoder deltas
+// are drained atomically from poll().
+// Ownership: EncoderManager owns decoder/debounce state; GPIO hardware remains
+// managed through Pico SDK calls.
+
+#include "encoder_manager.hpp"
+
+#include "config.hpp"
+#include "hardware/gpio.h"
+#include "hardware/sync.h"
+#include "pico/time.h"
+
+#include <limits>
+
+namespace picoscope {
+namespace {
+
+// Takes a GPIO pin number, reads its digital level, and returns true for high.
+bool read_pin(std::uint8_t pin)
+{
+    return gpio_get(pin) != 0;
+}
+
+// Takes a GPIO pin number, compares it with the configured pressed level, and
+// returns true when pressed.
+bool read_button_pressed(std::uint8_t pin)
+{
+    return read_pin(pin) == config::kStandaloneButtonPressedLevel;
+}
+
+// Takes a signed 32-bit delta, clamps it to the InputEvents field width, and
+// returns a safe 16-bit value.
+std::int16_t clamp_delta(std::int32_t delta)
+{
+    if (delta > std::numeric_limits<std::int16_t>::max()) {
+        return std::numeric_limits<std::int16_t>::max();
+    }
+    if (delta < std::numeric_limits<std::int16_t>::min()) {
+        return std::numeric_limits<std::int16_t>::min();
+    }
+    return static_cast<std::int16_t>(delta);
+}
+
+} // namespace
+
+EncoderManager *EncoderManager::active_instance_ = nullptr;
+
+// Takes no inputs, configures all encoder and button GPIOs, seeds state, and
+// returns nothing.
+void EncoderManager::init()
+{
+    active_instance_ = this;
+
+    init_encoder(trigger_, config::kTriggerEncA, config::kTriggerEncB);
+    init_encoder(voltage_, config::kVoltageEncA, config::kVoltageEncB);
+    init_encoder(time_, config::kTimeEncA, config::kTimeEncB);
+    init_button(channel_button_, config::kChannelButton);
+    init_button(run_button_, config::kRunButton);
+}
+
+// Takes no inputs, polls all encoder/button state once, and returns the
+// resulting input events.
+InputEvents EncoderManager::poll()
+{
+    InputEvents events = {};
+    events.trigger_delta = drain_encoder_delta(trigger_);
+    events.voltage_delta = drain_encoder_delta(voltage_);
+    events.time_delta = drain_encoder_delta(time_);
+    events.channel_button_pressed = poll_button_pressed(channel_button_);
+    events.run_button_pressed = poll_button_pressed(run_button_);
+    return events;
+}
+
+// Takes encoder storage plus A/B pins, configures pull-up GPIO inputs and IRQs,
+// seeds decoder state, and returns nothing.
+void EncoderManager::init_encoder(EncoderState &encoder,
+                                  std::uint8_t pin_a,
+                                  std::uint8_t pin_b)
+{
+    encoder.pin_a = pin_a;
+    encoder.pin_b = pin_b;
+    encoder.pending_delta = 0;
+    encoder.last_interrupt_us = 0;
+
+    gpio_init(pin_a);
+    gpio_set_dir(pin_a, GPIO_IN);
+    gpio_pull_up(pin_a);
+
+    gpio_init(pin_b);
+    gpio_set_dir(pin_b, GPIO_IN);
+    gpio_pull_up(pin_b);
+
+    encoder.decoder.reset(read_pin(pin_a), read_pin(pin_b));
+
+    constexpr std::uint32_t kEncoderIrqMask =
+        GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL;
+    gpio_set_irq_enabled_with_callback(pin_a, kEncoderIrqMask, true,
+                                       &EncoderManager::gpio_callback);
+    gpio_set_irq_enabled_with_callback(pin_b, kEncoderIrqMask, true,
+                                       &EncoderManager::gpio_callback);
+}
+
+// Takes button storage plus a GPIO pin, configures the standalone button input,
+// seeds debounce state, and returns nothing.
+void EncoderManager::init_button(ButtonState &button, std::uint8_t pin)
+{
+    button.pin = pin;
+
+    gpio_init(pin);
+    gpio_set_dir(pin, GPIO_IN);
+    if (config::kStandaloneButtonPressedLevel) {
+        gpio_pull_down(pin);
+    } else {
+        gpio_pull_up(pin);
+    }
+
+    button.raw_pressed = read_button_pressed(pin);
+    button.stable_pressed = button.raw_pressed;
+    button.last_change_us = time_us_64();
+}
+
+// Takes one encoder state, atomically drains queued detents since the previous
+// poll, and returns the signed delta.
+std::int16_t EncoderManager::drain_encoder_delta(EncoderState &encoder)
+{
+    const std::uint32_t interrupts = save_and_disable_interrupts();
+    const std::int32_t delta = encoder.pending_delta;
+    encoder.pending_delta = 0;
+    restore_interrupts(interrupts);
+    return clamp_delta(delta);
+}
+
+// Takes one button state, updates debounce timing from the configured button,
+// and returns true for a newly stable press event.
+bool EncoderManager::poll_button_pressed(ButtonState &button)
+{
+    const bool raw_pressed = read_button_pressed(button.pin);
+    const std::uint64_t now = time_us_64();
+
+    if (raw_pressed != button.raw_pressed) {
+        button.raw_pressed = raw_pressed;
+        button.last_change_us = now;
+        return false;
+    }
+
+    if ((now - button.last_change_us) < config::kButtonDebounceUs) {
+        return false;
+    }
+
+    if (button.stable_pressed != raw_pressed) {
+        button.stable_pressed = raw_pressed;
+        return raw_pressed;
+    }
+
+    return false;
+}
+
+// Takes a GPIO number from the shared IRQ callback, updates the matching
+// encoder decoder, and queues any resulting detent delta.
+void EncoderManager::handle_encoder_irq(std::uint8_t gpio)
+{
+    EncoderState *encoder = encoder_for_gpio(gpio);
+    if (encoder == nullptr) {
+        return;
+    }
+
+    const std::uint32_t now = time_us_32();
+    if ((now - encoder->last_interrupt_us) < config::kEncoderIrqDebounceUs) {
+        return;
+    }
+    encoder->last_interrupt_us = now;
+
+    const std::int8_t delta =
+        encoder->decoder.update(read_pin(encoder->pin_a), read_pin(encoder->pin_b));
+    if (delta != 0) {
+        encoder->pending_delta += delta;
+    }
+}
+
+// Takes a GPIO number, finds the encoder that owns it, and returns that encoder
+// state or nullptr.
+EncoderManager::EncoderState *EncoderManager::encoder_for_gpio(std::uint8_t gpio)
+{
+    if (gpio == trigger_.pin_a || gpio == trigger_.pin_b) {
+        return &trigger_;
+    }
+    if (gpio == voltage_.pin_a || gpio == voltage_.pin_b) {
+        return &voltage_;
+    }
+    if (gpio == time_.pin_a || gpio == time_.pin_b) {
+        return &time_;
+    }
+    return nullptr;
+}
+
+// Takes a GPIO IRQ from the Pico SDK, forwards it to the active manager, and
+// returns nothing.
+void EncoderManager::gpio_callback(unsigned int gpio, std::uint32_t events)
+{
+    (void)events;
+    if (active_instance_ == nullptr) {
+        return;
+    }
+    active_instance_->handle_encoder_irq(static_cast<std::uint8_t>(gpio));
+}
+
+} // namespace picoscope
