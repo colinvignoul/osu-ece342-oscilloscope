@@ -1,5 +1,5 @@
 // Purpose: Declares control-layer helpers that mutate scope settings in
-// response to encoder/button input and expose labels for the renderer.
+// response to encoder/switch input and expose labels for the renderer.
 // Interface: Functions operate on ScopeSettings/ChannelSettings by reference or
 // const reference; label functions return static strings owned by config tables.
 // Constraints: Return values distinguish redraw-only updates from capture resets

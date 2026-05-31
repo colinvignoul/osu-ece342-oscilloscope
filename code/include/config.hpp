@@ -94,9 +94,9 @@ constexpr std::uint8_t kVerticalEncA = 6;
 constexpr std::uint8_t kVerticalEncB = 2;
 constexpr std::uint8_t kTriggerEncA = 3;
 constexpr std::uint8_t kTriggerEncB = 4;
-constexpr std::uint8_t kChannelButton = 5;
-constexpr std::uint8_t kShiftScaleButton = 7;
-constexpr bool kButtonPressedLevel = true;
+constexpr std::uint8_t kChannelSwitch = 5;
+constexpr std::uint8_t kShiftScaleSwitch = 7;
+constexpr bool kSwitchActiveLevel = true;
 
 // RGB565 pixels are stored in host memory as 16-bit words ready for display DMA.
 using Rgb565 = std::uint16_t;
@@ -158,6 +158,5 @@ constexpr float kVerticalOffsetDivsPerTransition =
     static_cast<float>(kPositionEncoderPixelsPerTransition) /
     static_cast<float>(kPixelsPerDivisionY);
 constexpr std::uint32_t kEncoderIrqDebounceUs = 100;
-constexpr std::uint32_t kButtonDebounceUs = 5000;
 
 } // namespace picoscope::config

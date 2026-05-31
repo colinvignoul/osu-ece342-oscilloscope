@@ -140,8 +140,8 @@ struct InputEvents {
     std::int16_t trigger_delta = 0;
     std::int16_t vertical_delta = 0;
     std::int16_t horizontal_delta = 0;
-    bool channel_button_pressed = false;
-    bool shift_scale_button_pressed = false;
+    bool channel_switch_active = false;
+    bool shift_scale_switch_active = false;
 };
 
 // One display column keeps the min/max seen during its decimation window rather

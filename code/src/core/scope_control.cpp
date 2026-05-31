@@ -34,9 +34,14 @@ void request_capture_reset(ScopeUpdate &update)
     update.reset_capture = true;
 }
 
-AxisEditMode other_axis_edit_mode(AxisEditMode mode)
+Channel channel_from_switch(bool active)
 {
-    return mode == AxisEditMode::Shift ? AxisEditMode::Scale : AxisEditMode::Shift;
+    return active ? Channel::Ch2 : Channel::Ch1;
+}
+
+AxisEditMode axis_edit_mode_from_switch(bool active)
+{
+    return active ? AxisEditMode::Scale : AxisEditMode::Shift;
 }
 
 bool apply_horizontal_position_delta(ChannelSettings &channel, std::int16_t delta)
@@ -119,14 +124,18 @@ ScopeUpdate apply_input_events(ScopeSettings &settings, const InputEvents &event
 {
     ScopeUpdate update = {};
 
-    if (events.channel_button_pressed) {
-        settings.active_channel = other_channel(settings.active_channel);
+    const Channel selected_channel = channel_from_switch(events.channel_switch_active);
+    if (settings.active_channel != selected_channel ||
+        settings.trigger.source != selected_channel) {
+        settings.active_channel = selected_channel;
         settings.trigger.source = settings.active_channel;
         request_capture_reset(update);
     }
 
-    if (events.shift_scale_button_pressed) {
-        settings.axis_edit_mode = other_axis_edit_mode(settings.axis_edit_mode);
+    const AxisEditMode selected_axis_mode =
+        axis_edit_mode_from_switch(events.shift_scale_switch_active);
+    if (settings.axis_edit_mode != selected_axis_mode) {
+        settings.axis_edit_mode = selected_axis_mode;
         request_redraw(update);
     }
 

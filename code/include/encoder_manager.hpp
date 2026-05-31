@@ -1,10 +1,10 @@
 // Purpose: Declares input support for trigger, vertical, and horizontal rotary
-// encoders plus two active-high buttons.
+// encoders plus two active-high switches.
 // Interface: init() configures GPIOs/encoder IRQs, then poll() returns
-// debounced button presses and drained rotary deltas as InputEvents.
-// Constraints: Encoder A/B inputs use pull-ups and GPIO interrupts; buttons use
-// the configured pressed level and are time-debounced by polling.
-// Ownership: EncoderManager owns per-encoder decoder and button state only; GPIO
+// switch levels and drained rotary deltas as InputEvents.
+// Constraints: Encoder A/B inputs use pull-ups and GPIO interrupts; switches use
+// pull-down inputs and are sampled by polling.
+// Ownership: EncoderManager owns per-encoder decoder and switch state only; GPIO
 // hardware remains globally managed by the Pico SDK.
 
 #pragma once
@@ -16,24 +16,21 @@
 
 namespace picoscope {
 
-// Owns decoder and button state for the trigger, vertical-axis, horizontal-axis,
+// Owns decoder and switch state for the trigger, vertical-axis, horizontal-axis,
 // active-channel, and shift/scale controls.
 class EncoderManager {
 public:
-    // Takes no inputs, initializes all encoder/button GPIOs, IRQs, and decoder
+    // Takes no inputs, initializes all encoder/switch GPIOs, IRQs, and decoder
     // state, and returns nothing.
     void init();
 
-    // Takes no inputs, samples buttons, drains queued encoder deltas, and
+    // Takes no inputs, samples switches, drains queued encoder deltas, and
     // returns input events for this poll.
     InputEvents poll();
 
 private:
-    struct ButtonState {
+    struct SwitchState {
         std::uint8_t pin = 0;
-        bool raw_pressed = false;
-        bool stable_pressed = false;
-        std::uint64_t last_change_us = 0;
     };
 
     struct EncoderState {
@@ -49,13 +46,13 @@ private:
                       std::uint8_t pin_a,
                       std::uint8_t pin_b);
 
-    // Takes button storage plus a GPIO pin, configures the button input, seeds
-    // debounce state, and returns nothing.
-    void init_button(ButtonState &button, std::uint8_t pin);
+    // Takes switch storage plus a GPIO pin, configures the switch input, and
+    // returns nothing.
+    void init_switch(SwitchState &switch_state, std::uint8_t pin);
 
-    // Takes one button state, updates debounce state from GPIO level, and
-    // returns true only for a newly stable press.
-    bool poll_button_pressed(ButtonState &button);
+    // Takes one switch state, samples its GPIO level, and returns true when
+    // active.
+    bool sample_switch(const SwitchState &switch_state) const;
 
     // Takes no inputs, atomically drains queued rotary movement into an
     // InputEvents value.
@@ -80,8 +77,8 @@ private:
     EncoderState trigger_ = {};
     EncoderState vertical_ = {};
     EncoderState horizontal_ = {};
-    ButtonState channel_button_ = {};
-    ButtonState shift_scale_button_ = {};
+    SwitchState channel_switch_ = {};
+    SwitchState shift_scale_switch_ = {};
 
     volatile std::int32_t pending_trigger_delta_ = 0;
     volatile std::int32_t pending_vertical_delta_ = 0;

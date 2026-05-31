@@ -1,11 +1,11 @@
 // Purpose: Implements IRQ-driven GPIO sampling for rotary encoders and
-// debounced polling for active-high buttons.
+// polling for active-high switches.
 // Interface: EncoderManager produces InputEvents from three configured
-// encoders plus two configured buttons.
-// Constraints: Encoder GPIOs are pull-up inputs, button pressed level comes
-// from config, buttons are debounced in microseconds, and queued encoder deltas
-// are drained atomically from poll().
-// Ownership: EncoderManager owns decoder and button state; GPIO hardware remains
+// encoders plus two configured switches.
+// Constraints: Encoder GPIOs are pull-up inputs, switch active level comes
+// from config, switches are sampled as levels, and queued encoder deltas are
+// drained atomically from poll().
+// Ownership: EncoderManager owns decoder and switch state; GPIO hardware remains
 // managed through Pico SDK calls.
 
 #include "encoder_manager.hpp"
@@ -26,11 +26,11 @@ bool read_pin(std::uint8_t pin)
     return gpio_get(pin) != 0;
 }
 
-// Takes a GPIO pin number, compares it with the configured pressed level, and
-// returns true when pressed.
-bool read_button_pressed(std::uint8_t pin)
+// Takes a GPIO pin number, compares it with the configured active level, and
+// returns true when active.
+bool read_switch_active(std::uint8_t pin)
 {
-    return read_pin(pin) == config::kButtonPressedLevel;
+    return read_pin(pin) == config::kSwitchActiveLevel;
 }
 
 // Takes a signed 32-bit delta, clamps it to the InputEvents field width, and
@@ -50,7 +50,7 @@ std::int16_t clamp_delta(std::int32_t delta)
 
 EncoderManager *EncoderManager::active_instance_ = nullptr;
 
-// Takes no inputs, configures all encoder and button GPIOs, seeds state, and
+// Takes no inputs, configures all encoder and switch GPIOs, seeds state, and
 // returns nothing.
 void EncoderManager::init()
 {
@@ -59,18 +59,18 @@ void EncoderManager::init()
     init_encoder(horizontal_, config::kHorizontalEncA, config::kHorizontalEncB);
     init_encoder(vertical_, config::kVerticalEncA, config::kVerticalEncB);
     init_encoder(trigger_, config::kTriggerEncA, config::kTriggerEncB);
-    init_button(channel_button_, config::kChannelButton);
-    init_button(shift_scale_button_, config::kShiftScaleButton);
+    init_switch(channel_switch_, config::kChannelSwitch);
+    init_switch(shift_scale_switch_, config::kShiftScaleSwitch);
 }
 
-// Takes no inputs, polls buttons, drains queued encoder state, and returns
+// Takes no inputs, polls switches, drains queued encoder state, and returns
 // the resulting input events.
 InputEvents EncoderManager::poll()
 {
     InputEvents events = {};
     drain_pending_deltas(events);
-    events.channel_button_pressed = poll_button_pressed(channel_button_);
-    events.shift_scale_button_pressed = poll_button_pressed(shift_scale_button_);
+    events.channel_switch_active = sample_switch(channel_switch_);
+    events.shift_scale_switch_active = sample_switch(shift_scale_switch_);
     return events;
 }
 
@@ -102,23 +102,25 @@ void EncoderManager::init_encoder(EncoderState &encoder,
                                        &EncoderManager::gpio_callback);
 }
 
-// Takes button storage plus a GPIO pin, configures the button input, seeds
-// debounce state, and returns nothing.
-void EncoderManager::init_button(ButtonState &button, std::uint8_t pin)
+// Takes switch storage plus a GPIO pin, configures the switch input, and returns
+// nothing.
+void EncoderManager::init_switch(SwitchState &switch_state, std::uint8_t pin)
 {
-    button.pin = pin;
+    switch_state.pin = pin;
 
     gpio_init(pin);
     gpio_set_dir(pin, GPIO_IN);
-    if (config::kButtonPressedLevel) {
+    if (config::kSwitchActiveLevel) {
         gpio_pull_down(pin);
     } else {
         gpio_pull_up(pin);
     }
+}
 
-    button.raw_pressed = read_button_pressed(pin);
-    button.stable_pressed = button.raw_pressed;
-    button.last_change_us = time_us_64();
+// Takes one switch state, samples its GPIO level, and returns true when active.
+bool EncoderManager::sample_switch(const SwitchState &switch_state) const
+{
+    return read_switch_active(switch_state.pin);
 }
 
 // Takes no inputs, atomically drains queued rotary movement into an InputEvents
@@ -136,31 +138,6 @@ void EncoderManager::drain_pending_deltas(InputEvents &events)
     pending_horizontal_delta_ = 0;
 
     restore_interrupts(interrupts);
-}
-
-// Takes one button state, updates debounce timing from the configured button,
-// and returns true for a newly stable press event.
-bool EncoderManager::poll_button_pressed(ButtonState &button)
-{
-    const bool raw_pressed = read_button_pressed(button.pin);
-    const std::uint64_t now = time_us_64();
-
-    if (raw_pressed != button.raw_pressed) {
-        button.raw_pressed = raw_pressed;
-        button.last_change_us = now;
-        return false;
-    }
-
-    if ((now - button.last_change_us) < config::kButtonDebounceUs) {
-        return false;
-    }
-
-    if (button.stable_pressed != raw_pressed) {
-        button.stable_pressed = raw_pressed;
-        return raw_pressed;
-    }
-
-    return false;
 }
 
 // Takes a GPIO number from the shared IRQ callback, updates the matching
