@@ -27,8 +27,7 @@ public:
     CapturePipeline(const CapturePipeline &) = delete;
     CapturePipeline &operator=(const CapturePipeline &) = delete;
 
-    // Takes initial settings, initializes sampler/acquisition state, and returns
-    // nothing.
+    // Takes initial settings and initializes sampler/acquisition state.
     void init(const ScopeSettings &settings);
 
     // Takes changed settings, clears capture/history state, restarts sampling
@@ -42,17 +41,14 @@ public:
     // Takes no inputs and returns the current acquisition frame.
     const ScopeFrame &frame() const;
 
-    // Takes current settings, releases the current ready frame, and returns
-    // nothing.
+    // Takes current settings and releases the current ready frame.
     void acknowledge_frame(const ScopeSettings &settings);
 
 private:
-    // Takes current settings, switches to the required ADC mode if needed, and
-    // returns nothing.
+    // Takes current settings and switches to the required ADC mode if needed.
     void ensure_sampler_mode(const ScopeSettings &settings);
 
-    // Takes current settings after an ADC overflow, realigns sampling/acquisition,
-    // and returns nothing.
+    // Takes current settings after an ADC overflow and realigns sampling/acquisition.
     void recover_overflow(const ScopeSettings &settings);
 
     AdcSampler &sampler_;

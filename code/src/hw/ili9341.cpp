@@ -111,10 +111,6 @@ void Ili9341::init()
     gpio_set_dir(config::kLcdPinRst, GPIO_OUT);
     gpio_put(config::kLcdPinRst, 1);
 
-    gpio_init(config::kLcdPinLite);
-    gpio_set_dir(config::kLcdPinLite, GPIO_OUT);
-    gpio_put(config::kLcdPinLite, 1);
-
     hardware_reset();
 
     // Common ILI9341 power, timing, orientation, and gamma bring-up sequence

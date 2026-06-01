@@ -7,15 +7,13 @@
 
 namespace picoscope {
 
-// Borrowing renderer: reads a frame/settings pair and writes caller buffers.
+// Reads a frame/settings pair and writes caller buffers.
 class StripRenderer {
 public:
-    // Takes frame/settings references, stores them for read-only rendering, and
-    // returns a StripRenderer instance.
+    // Constructor
     StripRenderer(const ScopeFrame &frame, const ScopeSettings &settings);
 
-    // Takes a strip index and RGB565 buffer, renders that strip in place, and
-    // returns nothing.
+    // Takes a strip index and RGB565 buffer and renders that strip in place
     void render_strip(std::uint8_t strip_index, config::Rgb565 *buffer) const;
 
 private:

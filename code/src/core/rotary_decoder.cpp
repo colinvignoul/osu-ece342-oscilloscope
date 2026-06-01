@@ -13,10 +13,10 @@ namespace {
 // Index is previous AB state in the high bits and current AB state in the low
 // bits. Invalid two-bit jumps contribute 0, which filters bounce/skipped steps.
 constexpr std::int8_t kTransitionTable[16] = {
-    0, 1, -1, 0,
-    -1, 0, 0, 1,
-    1, 0, 0, -1,
     0, -1, 1, 0,
+    1, 0, 0, -1,
+    -1, 0, 0, 1,
+    0, 1, -1, 0,
 };
 
 // Takes raw A/B pin levels, packs them into a two-bit state, and returns that
@@ -28,7 +28,7 @@ std::uint8_t encode_state(bool a, bool b)
 
 } // namespace
 
-// Takes current A/B levels, seeds previous state, and returns nothing.
+// Takes current A/B levels and seeds previous state
 void QuadratureDecoder::reset(bool a, bool b)
 {
     previous_state_ = encode_state(a, b);

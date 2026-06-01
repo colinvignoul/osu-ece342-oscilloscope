@@ -8,7 +8,6 @@
 // remains owned by AdcSampler or the test caller.
 
 #include "acquisition_engine.hpp"
-
 #include "trigger_logic.hpp"
 
 namespace picoscope {
@@ -22,7 +21,7 @@ TriggerEvent capture_origin_event(bool triggered, const TriggerSettings &trigger
 
 } // namespace
 
-// Takes no inputs, clears frame and bucket state, and returns a ready engine.
+// Constructor clears frame and bucket state and returns a ready engine.
 AcquisitionEngine::AcquisitionEngine()
 {
     clear_frame();
@@ -31,7 +30,7 @@ AcquisitionEngine::AcquisitionEngine()
 }
 
 // Takes current scope settings and a clear-frame flag, resets trigger/capture
-// state for the selected timebase, and returns nothing.
+// state for the selected timebase.
 void AcquisitionEngine::reset(const ScopeSettings &settings, bool clear_frame_contents)
 {
     active_decimation_ = timebase_decimation(settings);
@@ -53,7 +52,7 @@ void AcquisitionEngine::reset(const ScopeSettings &settings, bool clear_frame_co
 }
 
 // Takes borrowed interleaved sample words, their word count, and current
-// settings; detects triggers and fills frame columns, returning nothing.
+// settings; detects triggers and fills frame columns. 
 void AcquisitionEngine::process_interleaved(const std::uint16_t *samples,
                                             std::uint32_t word_count,
                                             const ScopeSettings &settings)
@@ -136,7 +135,7 @@ void AcquisitionEngine::process_interleaved(const std::uint16_t *samples,
 }
 
 // Takes interleaved words and settings, starts capture immediately, and returns
-// with frame_ready() true only when enough words filled the display frame.
+// with frame_ready true only when enough words filled the display frame.
 void AcquisitionEngine::capture_interleaved(const std::uint16_t *samples,
                                             std::uint32_t word_count,
                                             const ScopeSettings &settings,
@@ -151,8 +150,7 @@ void AcquisitionEngine::capture_interleaved(const std::uint16_t *samples,
     capture_words(samples, word_count);
 }
 
-// Takes a wrapped history range, captures each contiguous span in chronological
-// order, and returns nothing.
+// Takes a wrapped history range, captures each contiguous span in order.
 void AcquisitionEngine::capture_history_range(const AdcHistoryRange &range,
                                               const ScopeSettings &settings,
                                               bool triggered)
@@ -163,7 +161,7 @@ void AcquisitionEngine::capture_history_range(const AdcHistoryRange &range,
 }
 
 // Takes a wrapped history range plus trigger diagnostics, captures each
-// contiguous span in chronological order, and returns nothing.
+// contiguous span in chronological order.
 void AcquisitionEngine::capture_history_range(const AdcHistoryRange &range,
                                               const ScopeSettings &settings,
                                               const TriggerEvent &trigger_event)
@@ -199,8 +197,7 @@ void AcquisitionEngine::acknowledge_frame(const ScopeSettings &settings)
     clear_pretrigger_columns();
 }
 
-// Takes trigger diagnostics, clears output state, enters capture mode, and
-// returns nothing.
+// Takes trigger diagnostics, clears output state, and enters capture mode.
 void AcquisitionEngine::begin_capture(const TriggerEvent &trigger_event,
                                       bool copy_pretrigger)
 {
@@ -218,7 +215,7 @@ void AcquisitionEngine::begin_capture(const TriggerEvent &trigger_event,
 }
 
 // Takes one raw CH1/CH2 pair plus validity flags, folds valid samples into the
-// min/max bucket, commits full buckets, and returns nothing.
+// min/max bucket, and commits full buckets.
 void AcquisitionEngine::capture_pair(const std::uint16_t raw[2], const bool valid[2])
 {
     // Each display column summarizes active_decimation_ sample pairs. Keeping
@@ -248,7 +245,7 @@ void AcquisitionEngine::capture_pair(const std::uint16_t raw[2], const bool vali
 }
 
 // Takes one raw CH1/CH2 pair plus validity flags, folds valid samples into the
-// rolling pre-trigger bucket, commits full buckets, and returns nothing.
+// rolling pre-trigger bucket, and commits full buckets.
 void AcquisitionEngine::track_pretrigger_pair(const std::uint16_t raw[2],
                                               const bool valid[2])
 {
@@ -297,7 +294,7 @@ void AcquisitionEngine::capture_words(const std::uint16_t *samples,
 }
 
 // Takes no inputs, copies the current bucket into the next frame column, marks
-// completion when the frame is full, and returns nothing.
+// completion when the frame is full.
 void AcquisitionEngine::commit_bucket()
 {
     if (column_index_ >= config::kDisplayWidth) {
@@ -326,7 +323,7 @@ void AcquisitionEngine::commit_bucket()
 }
 
 // Takes no inputs, copies the current bucket into the rolling pre-trigger ring,
-// marks the ring populated up to its capacity, and returns nothing.
+// marks the ring populated up to its capacity.
 void AcquisitionEngine::commit_pretrigger_bucket()
 {
     if (config::kDefaultTriggerColumn == 0u) {
@@ -371,8 +368,7 @@ void AcquisitionEngine::copy_pretrigger_columns_to_frame()
     }
 }
 
-// Takes no inputs, resets min/max/valid state for the active decimation bucket,
-// and returns nothing.
+// Takes no inputs, resets min/max/valid state for the active decimation bucket.
 void AcquisitionEngine::clear_bucket()
 {
     for (std::uint8_t ch = 0; ch < 2u; ++ch) {
@@ -383,8 +379,7 @@ void AcquisitionEngine::clear_bucket()
     bucket_count_ = 0;
 }
 
-// Takes no inputs, clears rolling pre-trigger display columns and indices, and
-// returns nothing.
+// Takes no inputs, clears rolling pre-trigger display columns and indices.
 void AcquisitionEngine::clear_pretrigger_columns()
 {
     for (std::uint16_t x = 0; x < config::kDefaultTriggerColumn; ++x) {
@@ -394,8 +389,7 @@ void AcquisitionEngine::clear_pretrigger_columns()
     pretrigger_count_ = 0;
 }
 
-// Takes no inputs, clears every display column and frame status flag, and
-// returns nothing.
+// Takes no inputs, clears every display column and frame status flag.
 void AcquisitionEngine::clear_frame()
 {
     for (std::uint16_t x = 0; x < config::kDisplayWidth; ++x) {

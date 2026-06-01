@@ -102,8 +102,7 @@ void EncoderManager::init_encoder(EncoderState &encoder,
                                        &EncoderManager::gpio_callback);
 }
 
-// Takes switch storage plus a GPIO pin, configures the switch input, and returns
-// nothing.
+// Takes switch storage plus a GPIO pin and configures the switch input
 void EncoderManager::init_switch(SwitchState &switch_state, std::uint8_t pin)
 {
     switch_state.pin = pin;

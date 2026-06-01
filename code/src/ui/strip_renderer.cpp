@@ -1,5 +1,5 @@
 #include "strip_renderer.hpp"
-
+#include "config.hpp"
 #include "font_config.hpp"
 #include "scope_control.hpp"
 
@@ -43,24 +43,6 @@ char frame_origin_marker(const ScopeFrame &frame)
         return 'A';
     }
     return frame.triggered ? 'T' : 'A';
-}
-
-char trigger_direction_marker(const ScopeFrame &frame)
-{
-    if (frame.trigger_event.origin != FrameOrigin::Trigger ||
-        !frame.trigger_event.has_previous_count) {
-        return '\0';
-    }
-    if (frame.trigger_event.sample_direction == TriggerSampleDirection::Rising) {
-        return '+';
-    }
-    if (frame.trigger_event.sample_direction == TriggerSampleDirection::Falling) {
-        return '-';
-    }
-    if (frame.trigger_event.sample_direction == TriggerSampleDirection::Flat) {
-        return '.';
-    }
-    return '\0';
 }
 
 } // namespace
@@ -166,6 +148,7 @@ void StripRenderer::draw_vline(config::Rgb565 *buffer,
     }
 }
 
+
 void StripRenderer::draw_line(config::Rgb565 *buffer,
                               int x0,
                               int y0,
@@ -196,6 +179,7 @@ void StripRenderer::draw_line(config::Rgb565 *buffer,
         }
     }
 }
+
 
 void StripRenderer::draw_grid(std::uint8_t strip_index, config::Rgb565 *buffer) const
 {
@@ -239,6 +223,7 @@ void StripRenderer::draw_trigger_marker(std::uint8_t strip_index,
     for (int x = 0; x < config::kDisplayWidth; x += 8) {
         draw_hline(buffer, x, y, 4, config::kColorTrigger);
     }
+    return;
 }
 
 void StripRenderer::draw_trace(std::uint8_t strip_index,
@@ -323,6 +308,7 @@ PICOSCOPE_NOINLINE void StripRenderer::draw_char(config::Rgb565 *buffer,
             }
         }
     }
+    return;
 }
 
 void StripRenderer::draw_status(config::Rgb565 *buffer) const
@@ -333,32 +319,28 @@ void StripRenderer::draw_status(config::Rgb565 *buffer) const
 
     int x = 2;
     constexpr int y = 1;
-    x = draw_text(buffer, x, y, channel_label(Channel::Ch1), config::kColorStatus);
+    x = draw_text(buffer, x, y, channel_label(Channel::Ch1), config::kColorCh1);
     x = draw_text(buffer, x, y, " ", config::kColorStatus);
     x = draw_text(buffer, x, y, volts_scale_label(settings_.channels[0]), config::kColorStatus);
     x = draw_text(buffer, x, y, "/D ", config::kColorStatus);
-    x = draw_text(buffer, x, y, channel_label(Channel::Ch2), config::kColorStatus);
+    x = draw_text(buffer, x, y, channel_label(Channel::Ch2), config::kColorCh2);
     x = draw_text(buffer, x, y, " ", config::kColorStatus);
     x = draw_text(buffer, x, y, volts_scale_label(settings_.channels[1]), config::kColorStatus);
     x = draw_text(buffer, x, y, "/D ", config::kColorStatus);
     x = draw_text(buffer, x, y, timebase_label(settings_), config::kColorStatus);
-    x = draw_text(buffer, x, y, "/D T", config::kColorStatus);
-    x = draw_text(buffer, x, y, channel_label(settings_.trigger.source), config::kColorStatus);
+    x = draw_text(buffer, x, y, "/D ", config::kColorStatus);
+    x = draw_text(buffer, x, y, "T", config::kColorTrigger);
+    x = draw_text(buffer, x, y, channel_label(settings_.trigger.source), config::kColorTrigger);
     x = draw_text(buffer, x, y, " ", config::kColorStatus);
     draw_char(buffer,
               x,
               y,
               settings_.trigger.edge == TriggerEdge::Rising ? 'R' : 'F',
-              config::kColorStatus);
+              config::kColorTrigger);
     x += kGlyphAdvance;
     x = draw_text(buffer, x, y, " ", config::kColorStatus);
     draw_char(buffer, x, y, frame_origin_marker(frame_), config::kColorStatus);
     x += kGlyphAdvance;
-    const char direction_marker = trigger_direction_marker(frame_);
-    if (direction_marker != '\0') {
-        draw_char(buffer, x, y, direction_marker, config::kColorStatus);
-        x += kGlyphAdvance;
-    }
     x = draw_text(buffer, x, y, " ", config::kColorStatus);
     draw_text(buffer, x, y, settings_.running ? "RUN" : "HOLD", config::kColorStatus);
 }

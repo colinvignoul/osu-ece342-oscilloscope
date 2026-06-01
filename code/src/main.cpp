@@ -1,7 +1,5 @@
 // Purpose: Owns the firmware entry point and wires display, input, sampling,
 // acquisition, and rendering pipelines.
-// Interface: The Pico runtime calls main(); runtime subsystems expose small
-// app-layer APIs
 // Constraints: Core 0 runs input/sampling/acquisition without dynamic
 // allocation; core 1 is launched by RenderPipeline and owns display rendering.
 // Ownership: main() owns long-lived subsystem instances for the process lifetime.
@@ -33,12 +31,11 @@ int main()
     stdio_init_all();
     sleep_ms(200);
 
-    render_pipeline.init();
-    encoders.init();
-
     picoscope::ScopeSettings settings = picoscope::default_scope_settings();
     capture_pipeline.init(settings);
+    render_pipeline.init();
     render_pipeline.publish(capture_pipeline.frame(), settings);
+    encoders.init();
 
     for (;;) {
         const picoscope::InputEvents input = encoders.poll();
