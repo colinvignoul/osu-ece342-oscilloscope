@@ -160,6 +160,8 @@ private:
         previous_state = current_state;
         bool clk_state = gpio_get(clk);
         bool dt_state  = gpio_get(dt);
+        horz = gpio_get(HORZ_SWITCH);
+        sig2 = gpio_get(SIGNAL2_SWITCH);
 
         if (clk == SHIFT_CLK) {
             if(lookup[transition] == 0) {
@@ -251,20 +253,6 @@ int main() {
     gpio_set_dir(SIGNAL2_SWITCH, GPIO_IN);
     gpio_pull_down(SIGNAL2_SWITCH);
 
-    gpio_set_irq_enabled_with_callback(
-        HORZ_SWITCH,
-        GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL,
-        true,
-        &gpio_callback
-    );
-        
-    gpio_set_irq_enabled_with_callback(
-        SIGNAL2_SWITCH,
-        GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL,
-        true,
-        &gpio_callback
-    );
-
     // ========================================================
     // Rotary Encoders
     // ========================================================
@@ -320,7 +308,6 @@ int main() {
 
             gpio_put(LED_PIN, !gpio_get(LED_PIN));
 
-            /*
             printf("=================================\n");
 
             printf("Vertical 1 Position: %d\n", vert1_pos);
@@ -342,10 +329,10 @@ int main() {
             printf("Trigger 2 Level: %f Voltage 2: %f\n",
                    trig2_pos,
                    voltage2);
-            */
+            
         }
 
-        sleep_ms(50);
+        sleep_ms(5);
     }
 
     return 0;
@@ -354,14 +341,4 @@ int main() {
 void gpio_callback(uint gpio, uint32_t events) {
     RotaryEncoder::handle_gpio_irq(gpio);
 
-    switch(gpio) {
-
-        case HORZ_SWITCH:
-            horz = gpio_get(HORZ_SWITCH);
-            break;
-
-        case SIGNAL2_SWITCH:
-            sig2 = gpio_get(SIGNAL2_SWITCH);
-            break;
-    }
 }
