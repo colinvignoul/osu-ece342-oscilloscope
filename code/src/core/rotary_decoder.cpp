@@ -14,10 +14,10 @@ namespace {
 // Index is previous AB state in the high bits and current AB state in the low
 // bits. Invalid two-bit jumps contribute 0, which filters bounce/skipped steps.
 constexpr std::int8_t kTransitionTable[16] = {
-    0, -1, 1, 0,
-    1, 0, 0, -1,
-    -1, 0, 0, 1,
-    0, 1, -1, 0,
+     0,  1, -1,  0,
+    -1,  0,  0,  1,
+     1,  0,  0, -1,
+     0, -1,  1,  0
 };
 constexpr std::int8_t kTransitionsPerDetent = 4;
 
