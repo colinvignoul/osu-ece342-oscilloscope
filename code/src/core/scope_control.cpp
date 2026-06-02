@@ -204,28 +204,86 @@ const char *timebase_label(const ScopeSettings &settings)
     return config::kTimebases[settings.timebase_index].label;
 }
 
-std::uint16_t timebase_nominal_decimation(const ScopeSettings &settings)
+TimebaseRatio timebase_nominal_ratio(const ScopeSettings &settings)
 {
-    return config::kTimebases[settings.timebase_index].nominal_decimation;
+    const config::Timebase &timebase = config::kTimebases[settings.timebase_index];
+    return TimebaseRatio{timebase.nominal_pair_numerator,
+                         timebase.nominal_pair_denominator};
 }
 
 std::uint16_t timebase_decimation(const ScopeSettings &settings)
 {
-    const std::uint16_t nominal = timebase_nominal_decimation(settings);
-    return nominal > config::kMaxHistoryTimebaseDecimation
+    const TimebaseRatio nominal = timebase_nominal_ratio(settings);
+    if (nominal.numerator <= nominal.denominator) {
+        return 1u;
+    }
+    const std::uint32_t nominal_pairs = nominal.numerator / nominal.denominator;
+    return nominal_pairs > config::kMaxHistoryTimebaseDecimation
                ? config::kMaxHistoryTimebaseDecimation
-               : nominal;
+               : static_cast<std::uint16_t>(nominal_pairs);
+}
+
+bool timebase_uses_interpolation(const ScopeSettings &settings)
+{
+    const TimebaseRatio nominal = timebase_nominal_ratio(settings);
+    return nominal.numerator < nominal.denominator;
+}
+
+std::uint16_t timebase_interpolation_factor(const ScopeSettings &settings)
+{
+    const TimebaseRatio nominal = timebase_nominal_ratio(settings);
+    if (nominal.numerator >= nominal.denominator) {
+        return 1u;
+    }
+    return static_cast<std::uint16_t>(nominal.denominator / nominal.numerator);
+}
+
+std::uint32_t timebase_frame_pair_count(const ScopeSettings &settings)
+{
+    const TimebaseRatio nominal = timebase_nominal_ratio(settings);
+    if (nominal.numerator >= nominal.denominator) {
+        return static_cast<std::uint32_t>(config::kDisplayWidth) *
+               timebase_decimation(settings);
+    }
+
+    const std::uint32_t last_column = config::kDisplayWidth - 1u;
+    return (last_column * nominal.numerator + nominal.denominator - 1u) /
+               nominal.denominator +
+           1u;
+}
+
+std::uint32_t timebase_pretrigger_pair_count(const ScopeSettings &settings)
+{
+    const TimebaseRatio nominal = timebase_nominal_ratio(settings);
+    if (nominal.numerator >= nominal.denominator) {
+        return static_cast<std::uint32_t>(config::kDefaultTriggerColumn) *
+               timebase_decimation(settings);
+    }
+
+    return (static_cast<std::uint32_t>(config::kDefaultTriggerColumn) *
+                nominal.numerator +
+            nominal.denominator - 1u) /
+           nominal.denominator;
+}
+
+std::uint32_t timebase_posttrigger_pair_count(const ScopeSettings &settings)
+{
+    return timebase_frame_pair_count(settings) -
+           timebase_pretrigger_pair_count(settings);
 }
 
 std::uint32_t timebase_sample_pairs_per_second(const ScopeSettings &settings)
 {
-    const std::uint16_t nominal = timebase_nominal_decimation(settings);
+    const TimebaseRatio nominal = timebase_nominal_ratio(settings);
     const std::uint16_t capture = timebase_decimation(settings);
-    return static_cast<std::uint32_t>(
-        (static_cast<std::uint64_t>(config::kAdcSamplesPerSecondPerChannel) *
-             capture +
-         nominal / 2u) /
-        nominal);
+    const std::uint64_t requested =
+        static_cast<std::uint64_t>(config::kAdcSamplesPerSecondPerChannel) *
+        capture * nominal.denominator;
+    const std::uint32_t adjusted = static_cast<std::uint32_t>(
+        (requested + nominal.numerator / 2u) / nominal.numerator);
+    return adjusted > config::kAdcSamplesPerSecondPerChannel
+               ? config::kAdcSamplesPerSecondPerChannel
+               : adjusted;
 }
 
 float timebase_adc_clkdiv(const ScopeSettings &settings)

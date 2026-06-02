@@ -42,13 +42,36 @@ float volts_per_div(const ChannelSettings &channel);
 // static null-terminated string.
 const char *timebase_label(const ScopeSettings &settings);
 
+// Nominal horizontal sample-pair ratio at the maximum ADC rate.
+struct TimebaseRatio {
+    std::uint16_t numerator = 1;
+    std::uint16_t denominator = 1;
+};
+
 // Takes scope settings, looks up the selected nominal timebase, and returns the
-// sample pairs per display column at the maximum ADC rate.
-std::uint16_t timebase_nominal_decimation(const ScopeSettings &settings);
+// sample-pair ratio per display column at the maximum ADC rate.
+TimebaseRatio timebase_nominal_ratio(const ScopeSettings &settings);
 
 // Takes scope settings, looks up the selected timebase, and returns sample
 // pairs to aggregate per display column at the adjusted ADC rate.
 std::uint16_t timebase_decimation(const ScopeSettings &settings);
+
+// Takes scope settings and returns true when display columns are interpolated
+// between raw sample pairs.
+bool timebase_uses_interpolation(const ScopeSettings &settings);
+
+// Takes scope settings and returns the number of display columns synthesized
+// per raw sample-pair interval. Non-interpolated timebases return 1.
+std::uint16_t timebase_interpolation_factor(const ScopeSettings &settings);
+
+// Takes scope settings and returns raw CH1/CH2 pairs needed for one frame.
+std::uint32_t timebase_frame_pair_count(const ScopeSettings &settings);
+
+// Takes scope settings and returns raw CH1/CH2 pairs before the trigger column.
+std::uint32_t timebase_pretrigger_pair_count(const ScopeSettings &settings);
+
+// Takes scope settings and returns raw CH1/CH2 pairs from trigger through frame end.
+std::uint32_t timebase_posttrigger_pair_count(const ScopeSettings &settings);
 
 // Takes scope settings and returns the effective CH1/CH2 sample-pair rate after
 // ADC-rate adjustment.

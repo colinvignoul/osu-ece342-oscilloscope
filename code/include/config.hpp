@@ -89,10 +89,12 @@ constexpr std::uint32_t kAutoTriggerFramePeriods = 1u; // this should stay at 1 
 constexpr std::uint32_t kAutoTriggerMinimumWaitUs = 50000u;
 
 // Trigger sensitivity settings
-constexpr std::uint16_t kTriggerHysteresisCounts = 16u;
-constexpr std::uint8_t kTriggerArmDwellSamples = 3u;
+constexpr std::uint16_t kTriggerHysteresisCounts = 4u;
+constexpr std::uint8_t kTriggerArmDwellSamples = 2u;
 constexpr std::uint16_t kTriggerOppositeEdgeHoldoffColumns = 2u;
-constexpr std::uint16_t kTriggerOppositeEdgeHoldoffMinimumPairs = 16u;
+constexpr std::uint16_t kTriggerOppositeEdgeHoldoffMinimumPairs = 4u;
+constexpr std::uint8_t kFastTriggerArmDwellSamples = 1u;
+constexpr std::uint32_t kFastTriggerOppositeEdgeHoldoffPairs = 1u;
 
 
 constexpr bool kSwitchActiveLevel = true;
@@ -121,30 +123,32 @@ constexpr VoltsScale kVoltsScales[] = {
     {0.20f, "200mV"},
     {0.50f, "500mV"},
     {1.00f, "1V"},
-    {2.00f, "2V"},
 };
 constexpr std::size_t kVoltsScaleCount = sizeof(kVoltsScales) / sizeof(kVoltsScales[0]);
 constexpr std::uint8_t kDefaultVoltsScaleIndex = 2;
 
-// Horizontal scale: nominal sample-pair decimation plus its UI label.
+// Horizontal scale: nominal sample pairs per pixel plus its UI label.
 struct Timebase {
-    std::uint16_t nominal_decimation;
+    std::uint16_t nominal_pair_numerator;
+    std::uint16_t nominal_pair_denominator;
     const char *label;
 };
 
-// Nominal decimation is sample pairs per pixel at the maximum ADC rate.
+// Nominal pair ratio is sample pairs per pixel at the maximum ADC rate.
 // Labels are time per horizontal division.
 constexpr Timebase kTimebases[] = {
-    {1, "128us"},
-    {2, "256us"},
-    {5, "640us"},
-    {10, "1.28ms"},
-    {20, "2.56ms"},
-    {50, "6.4ms"},
-    {100, "12.8ms"},
-    {200, "25.6ms"},
-    {500, "64ms"},
-    {1000, "128ms"},
+    {1, 4, "32us"},
+    {1, 2, "64us"},
+    {1, 1, "128us"},
+    {2, 1, "256us"},
+    {5, 1, "640us"},
+    {10, 1, "1.28ms"},
+    {20, 1, "2.56ms"},
+    {50, 1, "6.4ms"},
+    {100, 1, "12.8ms"},
+    //{200, 1, "25.6ms"},
+    //{500, 1, "64ms"},
+    //{1000, 1, "128ms"},
 };
 constexpr std::size_t kTimebaseCount = sizeof(kTimebases) / sizeof(kTimebases[0]);
 constexpr std::uint8_t kDefaultTimebaseIndex = 5;
@@ -154,6 +158,6 @@ constexpr std::int16_t kPositionEncoderPixelsPerTransition = 1;
 constexpr float kVerticalOffsetDivsPerTransition =
     static_cast<float>(kPositionEncoderPixelsPerTransition) /
     static_cast<float>(kPixelsPerDivisionY);
-constexpr std::uint32_t kEncoderIrqDebounceUs = 100;
+constexpr std::uint32_t kEncoderIrqDebounceUs = 5000;
 
 } // namespace picoscope::config

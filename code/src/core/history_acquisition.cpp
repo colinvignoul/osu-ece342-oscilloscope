@@ -35,8 +35,7 @@ bool HistoryAcquisition::supported(const ScopeSettings &settings) const
 // returns that count.
 std::uint32_t HistoryAcquisition::frame_pair_count(const ScopeSettings &settings) const
 {
-    return static_cast<std::uint32_t>(config::kDisplayWidth) *
-           timebase_decimation(settings);
+    return timebase_frame_pair_count(settings);
 }
 
 // Takes current settings, computes the configured pre-trigger raw pair count,
@@ -44,8 +43,7 @@ std::uint32_t HistoryAcquisition::frame_pair_count(const ScopeSettings &settings
 std::uint32_t HistoryAcquisition::pretrigger_pair_count(
     const ScopeSettings &settings) const
 {
-    return static_cast<std::uint32_t>(config::kDefaultTriggerColumn) *
-           timebase_decimation(settings);
+    return timebase_pretrigger_pair_count(settings);
 }
 
 // Takes current settings, computes the configured post-trigger raw pair count,
@@ -53,9 +51,7 @@ std::uint32_t HistoryAcquisition::pretrigger_pair_count(
 std::uint32_t HistoryAcquisition::posttrigger_pair_count(
     const ScopeSettings &settings) const
 {
-    return static_cast<std::uint32_t>(config::kDisplayWidth -
-                                      config::kDefaultTriggerColumn) *
-           timebase_decimation(settings);
+    return timebase_posttrigger_pair_count(settings);
 }
 
 // Takes no inputs and returns the stable history capacity after guard pairs.
@@ -177,6 +173,9 @@ bool HistoryAcquisition::process(const AdcHistorySnapshot &snapshot,
     }
 
     const std::uint32_t pretrigger_pairs = pretrigger_pair_count(settings);
+    const std::uint8_t trigger_arm_samples = trigger_arm_dwell_samples(settings);
+    const std::uint32_t trigger_holdoff_pairs =
+        trigger_opposite_edge_holdoff_pairs(settings);
     while (sequence <= snapshot.latest_complete_pair_sequence) {
         std::uint16_t words[2] = {};
         if (!read_history_pair(snapshot, sequence, words)) {
@@ -193,7 +192,7 @@ bool HistoryAcquisition::process(const AdcHistorySnapshot &snapshot,
             if (previous_valid &&
                 trigger_opposite_edge_crossed(previous_count, raw, settings.trigger)) {
                 state_.trigger_opposite_holdoff_pairs =
-                    trigger_opposite_edge_holdoff_pairs(timebase_decimation(settings));
+                    trigger_holdoff_pairs;
                 holdoff_active = true;
             }
 
@@ -201,7 +200,8 @@ bool HistoryAcquisition::process(const AdcHistorySnapshot &snapshot,
                 schmitt_trigger_crossed(state_.trigger_armed,
                                         state_.trigger_arm_sample_count,
                                         raw,
-                                        settings.trigger);
+                                        settings.trigger,
+                                        trigger_arm_samples);
             crossed = sequence >= snapshot.oldest_available_pair_sequence + pretrigger_pairs &&
                       !holdoff_active &&
                       raw_crossed;

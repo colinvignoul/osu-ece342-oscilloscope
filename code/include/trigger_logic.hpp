@@ -11,6 +11,7 @@
 
 #include <cstdint>
 
+#include "scope_control.hpp"
 #include "scope_types.hpp"
 
 namespace picoscope {
@@ -62,12 +63,30 @@ constexpr bool trigger_opposite_edge_crossed(std::uint16_t previous,
     return previous <= lower && current >= upper;
 }
 
+// Takes scope settings and returns true when the selected timebase should use
+// the lightweight trigger qualifier for high-frequency response.
+inline bool trigger_uses_fast_filter(const ScopeSettings &settings)
+{
+    const TimebaseRatio nominal = timebase_nominal_ratio(settings);
+    return nominal.numerator <= nominal.denominator * 2u;
+}
+
+// Takes scope settings and returns the required number of arming-side samples
+// before a Schmitt-qualified crossing can fire.
+inline std::uint8_t trigger_arm_dwell_samples(const ScopeSettings &settings)
+{
+    return trigger_uses_fast_filter(settings)
+               ? config::kFastTriggerArmDwellSamples
+               : config::kTriggerArmDwellSamples;
+}
+
 // Takes persistent arm state plus one valid trigger-channel sample, requires a
 // short dwell on the arming side, and returns true only on a qualified crossing.
 inline bool schmitt_trigger_crossed(bool &armed,
                                     std::uint8_t &arm_sample_count,
                                     std::uint16_t current,
-                                    const TriggerSettings &trigger)
+                                    const TriggerSettings &trigger,
+                                    std::uint8_t arm_dwell_samples)
 {
     const std::uint16_t lower = trigger_lower_threshold(trigger);
     const std::uint16_t upper = trigger_upper_threshold(trigger);
@@ -75,10 +94,10 @@ inline bool schmitt_trigger_crossed(bool &armed,
     if (trigger.edge == TriggerEdge::Rising) {
         if (!armed) {
             if (current <= lower) {
-                if (arm_sample_count < config::kTriggerArmDwellSamples) {
+                if (arm_sample_count < arm_dwell_samples) {
                     ++arm_sample_count;
                 }
-                if (arm_sample_count >= config::kTriggerArmDwellSamples) {
+                if (arm_sample_count >= arm_dwell_samples) {
                     armed = true;
                 }
             } else {
@@ -96,10 +115,10 @@ inline bool schmitt_trigger_crossed(bool &armed,
 
     if (!armed) {
         if (current >= upper) {
-            if (arm_sample_count < config::kTriggerArmDwellSamples) {
+            if (arm_sample_count < arm_dwell_samples) {
                 ++arm_sample_count;
             }
-            if (arm_sample_count >= config::kTriggerArmDwellSamples) {
+            if (arm_sample_count >= arm_dwell_samples) {
                 armed = true;
             }
         } else {
@@ -113,6 +132,20 @@ inline bool schmitt_trigger_crossed(bool &armed,
         return true;
     }
     return false;
+}
+
+// Takes persistent arm state plus one valid trigger-channel sample and applies
+// the default trigger dwell.
+inline bool schmitt_trigger_crossed(bool &armed,
+                                    std::uint8_t &arm_sample_count,
+                                    std::uint16_t current,
+                                    const TriggerSettings &trigger)
+{
+    return schmitt_trigger_crossed(armed,
+                                   arm_sample_count,
+                                   current,
+                                   trigger,
+                                   config::kTriggerArmDwellSamples);
 }
 
 // Takes the raw pair count for one frame plus the active sample-pair rate and
@@ -143,6 +176,17 @@ constexpr std::uint32_t trigger_opposite_edge_holdoff_pairs(std::uint16_t decima
     return column_pairs > config::kTriggerOppositeEdgeHoldoffMinimumPairs
                ? column_pairs
                : config::kTriggerOppositeEdgeHoldoffMinimumPairs;
+}
+
+// Takes scope settings and returns the opposite-edge trigger suppression period
+// for the selected timebase.
+inline std::uint32_t trigger_opposite_edge_holdoff_pairs(
+    const ScopeSettings &settings)
+{
+    if (trigger_uses_fast_filter(settings)) {
+        return config::kFastTriggerOppositeEdgeHoldoffPairs;
+    }
+    return trigger_opposite_edge_holdoff_pairs(timebase_decimation(settings));
 }
 
 } // namespace picoscope

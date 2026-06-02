@@ -74,17 +74,48 @@ private:
     // nothing.
     void begin_capture(const TriggerEvent &trigger_event, bool copy_pretrigger);
 
+    // Takes current settings, caches the active timebase policy, and returns
+    // nothing.
+    void configure_timebase(const ScopeSettings &settings);
+
+    // Takes no inputs and returns true when the active timebase synthesizes
+    // display columns between raw sample pairs.
+    bool interpolation_active() const;
+
     // Takes one raw CH1/CH2 pair plus validity flags, folds it into the active
     // decimation bucket, and returns nothing.
     void capture_pair(const std::uint16_t raw[2], const bool valid[2]);
+
+    // Takes one raw CH1/CH2 pair plus validity flags, interpolates display
+    // columns for a fractional timebase, and returns nothing.
+    void capture_interpolated_pair(const std::uint16_t raw[2],
+                                   const bool valid[2]);
 
     // Takes one raw CH1/CH2 pair while waiting for a trigger, folds it into the
     // rolling pre-trigger column ring, and returns nothing.
     void track_pretrigger_pair(const std::uint16_t raw[2], const bool valid[2]);
 
+    // Takes one raw CH1/CH2 pair while waiting for a trigger, interpolates
+    // rolling pre-trigger columns, and optionally excludes the exact endpoint.
+    void track_interpolated_pretrigger_pair(const std::uint16_t raw[2],
+                                            const bool valid[2],
+                                            bool include_endpoint);
+
+    // Takes no inputs and returns true when enough fractional pre-trigger
+    // columns can be synthesized through the current raw endpoint.
+    bool interpolated_pretrigger_ready_for_endpoint() const;
+
     // Takes interleaved ADC words and consumes complete CH1/CH2 pairs into the
     // current capture, returning nothing.
     void capture_words(const std::uint16_t *samples, std::uint32_t word_count);
+
+    // Takes one display column bucket, appends it to the output frame, and
+    // marks the frame ready when full.
+    void append_frame_column(const ColumnSampleBucket &bucket);
+
+    // Takes one display column bucket and appends it to the rolling
+    // pre-trigger ring.
+    void append_pretrigger_column(const ColumnSampleBucket &bucket);
 
     // Takes no inputs, writes the current min/max bucket into the next display
     // column, and returns nothing.
@@ -102,6 +133,9 @@ private:
     // returns nothing.
     void clear_bucket();
 
+    // Takes no inputs, clears the raw-pair interpolation endpoint.
+    void clear_interpolation_state();
+
     // Takes no inputs, clears rolling pre-trigger display columns and indices.
     void clear_pretrigger_columns();
 
@@ -113,11 +147,15 @@ private:
     Mode mode_ = Mode::WaitingForTrigger;
     bool frame_ready_ = false;
     std::uint16_t active_decimation_ = 1;
+    std::uint16_t active_interpolation_factor_ = 1;
     std::uint16_t bucket_count_ = 0;
     std::uint16_t column_index_ = 0;
     std::uint16_t bucket_min_[2] = {0, 0};
     std::uint16_t bucket_max_[2] = {0, 0};
     bool bucket_valid_[2] = {false, false};
+    std::uint16_t interpolation_previous_raw_[2] = {0, 0};
+    bool interpolation_previous_valid_[2] = {false, false};
+    bool interpolation_has_previous_ = false;
     ColumnSampleBucket pretrigger_columns_[config::kDefaultTriggerColumn] = {};
     std::uint16_t pretrigger_write_index_ = 0;
     std::uint16_t pretrigger_count_ = 0;

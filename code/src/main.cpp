@@ -14,6 +14,8 @@
 
 #include "pico/stdlib.h"
 
+#include <cstdio>
+
 namespace {
 
 picoscope::RenderPipeline render_pipeline;
@@ -30,6 +32,8 @@ int main()
 {
     stdio_init_all();
     sleep_ms(200);
+    //sleep_ms(7000);
+    // printf("USB serial working");
 
     picoscope::ScopeSettings settings = picoscope::default_scope_settings();
     capture_pipeline.init(settings);

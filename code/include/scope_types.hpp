@@ -71,20 +71,19 @@ struct ChannelSettings {
 struct TriggerSettings {
     Channel source = Channel::Ch2;
     TriggerEdge edge = TriggerEdge::Rising;
-    std::uint16_t level_count = config::kAdcBiasCount - 180;
+    std::uint16_t level_count = config::kAdcBiasCount;
 };
 
 // Diagnostic record for the trigger event that started a rendered frame.
 struct TriggerEvent {
     FrameOrigin origin = FrameOrigin::None;
     TriggerEdge configured_edge = TriggerEdge::Rising;
-    // TriggerSampleDirection sample_direction = TriggerSampleDirection::Unknown;
+    TriggerSampleDirection sample_direction = TriggerSampleDirection::Unknown;
     std::uint16_t previous_count = 0;
     std::uint16_t current_count = 0;
     bool has_previous_count = false;
 };
 
-/*
 constexpr TriggerSampleDirection trigger_sample_direction(std::uint16_t previous,
                                                           std::uint16_t current)
 {
@@ -96,7 +95,6 @@ constexpr TriggerSampleDirection trigger_sample_direction(std::uint16_t previous
     }
     return TriggerSampleDirection::Flat;
 }
-*/
 
 constexpr TriggerEvent make_trigger_event(const TriggerSettings &trigger,
                                           bool has_previous_count,
@@ -106,8 +104,8 @@ constexpr TriggerEvent make_trigger_event(const TriggerSettings &trigger,
     return TriggerEvent{
         FrameOrigin::Trigger,
         trigger.edge,
-        //has_previous_count ? trigger_sample_direction(previous_count, current_count)
-        //                   : TriggerSampleDirection::Unknown,
+        has_previous_count ? trigger_sample_direction(previous_count, current_count)
+                           : TriggerSampleDirection::Unknown,
         has_previous_count ? previous_count : static_cast<std::uint16_t>(0u),
         current_count,
         has_previous_count,
@@ -120,7 +118,7 @@ constexpr TriggerEvent make_origin_event(FrameOrigin origin,
     return TriggerEvent{
         origin,
         trigger.edge,
-        // TriggerSampleDirection::Unknown,
+        TriggerSampleDirection::Unknown,
         0u,
         0u,
         false,

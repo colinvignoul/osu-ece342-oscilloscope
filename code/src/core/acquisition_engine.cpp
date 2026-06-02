@@ -19,6 +19,45 @@ TriggerEvent capture_origin_event(bool triggered, const TriggerSettings &trigger
                              trigger);
 }
 
+ColumnSampleBucket sample_column(const std::uint16_t raw[2], const bool valid[2])
+{
+    ColumnSampleBucket column = {};
+    for (std::uint8_t ch = 0; ch < 2u; ++ch) {
+        if (valid[ch]) {
+            column.valid[ch] = true;
+            column.min_count[ch] = raw[ch];
+            column.max_count[ch] = raw[ch];
+        }
+    }
+    return column;
+}
+
+ColumnSampleBucket interpolated_column(const std::uint16_t previous_raw[2],
+                                       const bool previous_valid[2],
+                                       const std::uint16_t current_raw[2],
+                                       const bool current_valid[2],
+                                       std::uint16_t phase,
+                                       std::uint16_t phases)
+{
+    ColumnSampleBucket column = {};
+    for (std::uint8_t ch = 0; ch < 2u; ++ch) {
+        if (!previous_valid[ch] || !current_valid[ch]) {
+            continue;
+        }
+        const std::uint32_t weighted =
+            static_cast<std::uint32_t>(previous_raw[ch]) *
+                static_cast<std::uint32_t>(phases - phase) +
+            static_cast<std::uint32_t>(current_raw[ch]) *
+                static_cast<std::uint32_t>(phase);
+        const std::uint16_t value =
+            static_cast<std::uint16_t>((weighted + phases / 2u) / phases);
+        column.valid[ch] = true;
+        column.min_count[ch] = value;
+        column.max_count[ch] = value;
+    }
+    return column;
+}
+
 } // namespace
 
 // Constructor clears frame and bucket state and returns a ready engine.
@@ -33,7 +72,7 @@ AcquisitionEngine::AcquisitionEngine()
 // state for the selected timebase.
 void AcquisitionEngine::reset(const ScopeSettings &settings, bool clear_frame_contents)
 {
-    active_decimation_ = timebase_decimation(settings);
+    configure_timebase(settings);
     mode_ = Mode::WaitingForTrigger;
     frame_ready_ = false;
     bucket_count_ = 0;
@@ -45,6 +84,7 @@ void AcquisitionEngine::reset(const ScopeSettings &settings, bool clear_frame_co
     previous_trigger_count_ = 0;
     trigger_opposite_holdoff_pairs_ = 0;
     clear_bucket();
+    clear_interpolation_state();
     clear_pretrigger_columns();
     if (clear_frame_contents) {
         clear_frame();
@@ -62,7 +102,10 @@ void AcquisitionEngine::process_interleaved(const std::uint16_t *samples,
     }
 
     const std::uint16_t requested_decimation = timebase_decimation(settings);
-    if (requested_decimation != active_decimation_) {
+    const std::uint16_t requested_interpolation =
+        timebase_interpolation_factor(settings);
+    if (requested_decimation != active_decimation_ ||
+        requested_interpolation != active_interpolation_factor_) {
         reset(settings, false);
     }
 
@@ -72,6 +115,9 @@ void AcquisitionEngine::process_interleaved(const std::uint16_t *samples,
     const std::uint32_t auto_trigger_pairs =
         auto_trigger_timeout_pairs(frame_pairs,
                                    timebase_sample_pairs_per_second(settings));
+    const std::uint8_t trigger_arm_samples = trigger_arm_dwell_samples(settings);
+    const std::uint32_t trigger_holdoff_pairs =
+        trigger_opposite_edge_holdoff_pairs(settings);
 
     // The sampler round-robins CH1 then CH2, so acquisition consumes complete
     // channel pairs. Auto-trigger keeps the display alive when the signal never
@@ -92,20 +138,28 @@ void AcquisitionEngine::process_interleaved(const std::uint16_t *samples,
                                                   raw[trigger_channel],
                                                   settings.trigger)) {
                     trigger_opposite_holdoff_pairs_ =
-                        trigger_opposite_edge_holdoff_pairs(active_decimation_);
+                        trigger_holdoff_pairs;
                     holdoff_active = true;
                 }
                 const bool raw_crossed = schmitt_trigger_crossed(trigger_armed_,
                                                                  trigger_arm_sample_count_,
                                                                  raw[trigger_channel],
-                                                                 settings.trigger);
-                crossed = pretrigger_count_ >= config::kDefaultTriggerColumn &&
+                                                                 settings.trigger,
+                                                                 trigger_arm_samples);
+                const bool pretrigger_ready =
+                    interpolation_active()
+                        ? interpolated_pretrigger_ready_for_endpoint()
+                        : pretrigger_count_ >= config::kDefaultTriggerColumn;
+                crossed = pretrigger_ready &&
                           !holdoff_active &&
                           raw_crossed;
             }
 
             ++trigger_wait_pairs_;
             if (crossed || trigger_wait_pairs_ >= auto_trigger_pairs) {
+                if (interpolation_active()) {
+                    track_interpolated_pretrigger_pair(raw, valid, false);
+                }
                 const TriggerEvent trigger_event =
                     crossed ? make_trigger_event(settings.trigger,
                                                  previous_valid,
@@ -113,9 +167,17 @@ void AcquisitionEngine::process_interleaved(const std::uint16_t *samples,
                                                  raw[trigger_channel])
                             : make_origin_event(FrameOrigin::Auto, settings.trigger);
                 begin_capture(trigger_event, true);
-                capture_pair(raw, valid);
+                if (interpolation_active()) {
+                    capture_interpolated_pair(raw, valid);
+                } else {
+                    capture_pair(raw, valid);
+                }
             } else {
-                track_pretrigger_pair(raw, valid);
+                if (interpolation_active()) {
+                    track_interpolated_pretrigger_pair(raw, valid, true);
+                } else {
+                    track_pretrigger_pair(raw, valid);
+                }
             }
             if (valid[trigger_channel]) {
                 if (trigger_opposite_holdoff_pairs_ > 0u) {
@@ -125,7 +187,11 @@ void AcquisitionEngine::process_interleaved(const std::uint16_t *samples,
                 previous_trigger_count_ = raw[trigger_channel];
             }
         } else {
-            capture_pair(raw, valid);
+            if (interpolation_active()) {
+                capture_interpolated_pair(raw, valid);
+            } else {
+                capture_pair(raw, valid);
+            }
         }
 
         if (frame_ready_) {
@@ -145,7 +211,7 @@ void AcquisitionEngine::capture_interleaved(const std::uint16_t *samples,
         return;
     }
 
-    active_decimation_ = timebase_decimation(settings);
+    configure_timebase(settings);
     begin_capture(capture_origin_event(triggered, settings.trigger), false);
     capture_words(samples, word_count);
 }
@@ -170,7 +236,7 @@ void AcquisitionEngine::capture_history_range(const AdcHistoryRange &range,
         return;
     }
 
-    active_decimation_ = timebase_decimation(settings);
+    configure_timebase(settings);
     begin_capture(trigger_event, false);
     for (std::uint8_t i = 0; i < range.span_count && i < 2u; ++i) {
         capture_words(range.spans[i].words, range.spans[i].word_count);
@@ -192,8 +258,9 @@ void AcquisitionEngine::acknowledge_frame(const ScopeSettings &settings)
     previous_trigger_valid_ = false;
     previous_trigger_count_ = 0;
     trigger_opposite_holdoff_pairs_ = 0;
-    active_decimation_ = timebase_decimation(settings);
+    configure_timebase(settings);
     clear_bucket();
+    clear_interpolation_state();
     clear_pretrigger_columns();
 }
 
@@ -212,6 +279,20 @@ void AcquisitionEngine::begin_capture(const TriggerEvent &trigger_event,
     frame_.trigger_event = trigger_event;
     frame_.complete = false;
     mode_ = Mode::Capturing;
+    clear_interpolation_state();
+}
+
+// Takes current settings, caches active decimation/interpolation policy.
+void AcquisitionEngine::configure_timebase(const ScopeSettings &settings)
+{
+    active_decimation_ = timebase_decimation(settings);
+    active_interpolation_factor_ = timebase_interpolation_factor(settings);
+}
+
+// Takes no inputs and returns whether the active timebase interpolates columns.
+bool AcquisitionEngine::interpolation_active() const
+{
+    return active_interpolation_factor_ > 1u;
 }
 
 // Takes one raw CH1/CH2 pair plus validity flags, folds valid samples into the
@@ -244,6 +325,43 @@ void AcquisitionEngine::capture_pair(const std::uint16_t raw[2], const bool vali
     }
 }
 
+// Takes one raw CH1/CH2 pair plus validity flags, emits exact/interpolated
+// display columns for fractional timebases.
+void AcquisitionEngine::capture_interpolated_pair(const std::uint16_t raw[2],
+                                                  const bool valid[2])
+{
+    if (!interpolation_has_previous_) {
+        append_frame_column(sample_column(raw, valid));
+        for (std::uint8_t ch = 0; ch < 2u; ++ch) {
+            interpolation_previous_raw_[ch] = raw[ch];
+            interpolation_previous_valid_[ch] = valid[ch];
+        }
+        interpolation_has_previous_ = true;
+        return;
+    }
+
+    for (std::uint16_t phase = 1u;
+         phase <= active_interpolation_factor_ && !frame_ready_;
+         ++phase) {
+        const ColumnSampleBucket column =
+            phase == active_interpolation_factor_
+                ? sample_column(raw, valid)
+                : interpolated_column(interpolation_previous_raw_,
+                                      interpolation_previous_valid_,
+                                      raw,
+                                      valid,
+                                      phase,
+                                      active_interpolation_factor_);
+        append_frame_column(column);
+    }
+
+    for (std::uint8_t ch = 0; ch < 2u; ++ch) {
+        interpolation_previous_raw_[ch] = raw[ch];
+        interpolation_previous_valid_[ch] = valid[ch];
+    }
+    interpolation_has_previous_ = true;
+}
+
 // Takes one raw CH1/CH2 pair plus validity flags, folds valid samples into the
 // rolling pre-trigger bucket, and commits full buckets.
 void AcquisitionEngine::track_pretrigger_pair(const std::uint16_t raw[2],
@@ -273,6 +391,61 @@ void AcquisitionEngine::track_pretrigger_pair(const std::uint16_t raw[2],
     }
 }
 
+// Takes one raw CH1/CH2 pair while waiting for trigger, emits rolling
+// pre-trigger interpolation columns. Excluding the endpoint lets the trigger
+// sample itself become the first captured column.
+void AcquisitionEngine::track_interpolated_pretrigger_pair(
+    const std::uint16_t raw[2],
+    const bool valid[2],
+    bool include_endpoint)
+{
+    if (!interpolation_has_previous_) {
+        if (include_endpoint) {
+            append_pretrigger_column(sample_column(raw, valid));
+        }
+        for (std::uint8_t ch = 0; ch < 2u; ++ch) {
+            interpolation_previous_raw_[ch] = raw[ch];
+            interpolation_previous_valid_[ch] = valid[ch];
+        }
+        interpolation_has_previous_ = true;
+        return;
+    }
+
+    const std::uint16_t last_phase =
+        include_endpoint ? active_interpolation_factor_
+                         : static_cast<std::uint16_t>(active_interpolation_factor_ - 1u);
+    for (std::uint16_t phase = 1u; phase <= last_phase; ++phase) {
+        const ColumnSampleBucket column =
+            phase == active_interpolation_factor_
+                ? sample_column(raw, valid)
+                : interpolated_column(interpolation_previous_raw_,
+                                      interpolation_previous_valid_,
+                                      raw,
+                                      valid,
+                                      phase,
+                                      active_interpolation_factor_);
+        append_pretrigger_column(column);
+    }
+
+    for (std::uint8_t ch = 0; ch < 2u; ++ch) {
+        interpolation_previous_raw_[ch] = raw[ch];
+        interpolation_previous_valid_[ch] = valid[ch];
+    }
+    interpolation_has_previous_ = true;
+}
+
+// Takes no inputs and returns true when the current endpoint can provide enough
+// fractional columns before the endpoint itself.
+bool AcquisitionEngine::interpolated_pretrigger_ready_for_endpoint() const
+{
+    const std::uint16_t endpoint_leadin =
+        interpolation_has_previous_ && active_interpolation_factor_ > 1u
+            ? static_cast<std::uint16_t>(active_interpolation_factor_ - 1u)
+            : 0u;
+    return static_cast<std::uint32_t>(pretrigger_count_) + endpoint_leadin >=
+           config::kDefaultTriggerColumn;
+}
+
 // Takes interleaved ADC words, strips FIFO metadata, and folds complete pairs
 // into the active capture until the frame is full.
 void AcquisitionEngine::capture_words(const std::uint16_t *samples,
@@ -286,16 +459,20 @@ void AcquisitionEngine::capture_words(const std::uint16_t *samples,
         const std::uint16_t words[2] = {samples[i], samples[i + 1u]};
         const bool valid[2] = {adc_word_valid(words[0]), adc_word_valid(words[1])};
         const std::uint16_t raw[2] = {adc_word_value(words[0]), adc_word_value(words[1])};
-        capture_pair(raw, valid);
+        if (interpolation_active()) {
+            capture_interpolated_pair(raw, valid);
+        } else {
+            capture_pair(raw, valid);
+        }
         if (frame_ready_) {
             break;
         }
     }
 }
 
-// Takes no inputs, copies the current bucket into the next frame column, marks
-// completion when the frame is full.
-void AcquisitionEngine::commit_bucket()
+// Takes one display column bucket, appends it to the frame, and completes the
+// frame when the display width is filled.
+void AcquisitionEngine::append_frame_column(const ColumnSampleBucket &bucket)
 {
     if (column_index_ >= config::kDisplayWidth) {
         frame_.complete = true;
@@ -304,15 +481,8 @@ void AcquisitionEngine::commit_bucket()
         return;
     }
 
-    ColumnSampleBucket &column = frame_.columns[column_index_];
-    for (std::uint8_t ch = 0; ch < 2u; ++ch) {
-        column.valid[ch] = bucket_valid_[ch];
-        column.min_count[ch] = bucket_min_[ch];
-        column.max_count[ch] = bucket_max_[ch];
-    }
-
+    frame_.columns[column_index_] = bucket;
     ++column_index_;
-    clear_bucket();
 
     if (column_index_ >= config::kDisplayWidth) {
         frame_.complete = true;
@@ -322,21 +492,15 @@ void AcquisitionEngine::commit_bucket()
     }
 }
 
-// Takes no inputs, copies the current bucket into the rolling pre-trigger ring,
-// marks the ring populated up to its capacity.
-void AcquisitionEngine::commit_pretrigger_bucket()
+// Takes one display column bucket and appends it to the rolling pre-trigger
+// ring.
+void AcquisitionEngine::append_pretrigger_column(const ColumnSampleBucket &bucket)
 {
     if (config::kDefaultTriggerColumn == 0u) {
-        clear_bucket();
         return;
     }
 
-    ColumnSampleBucket &column = pretrigger_columns_[pretrigger_write_index_];
-    for (std::uint8_t ch = 0; ch < 2u; ++ch) {
-        column.valid[ch] = bucket_valid_[ch];
-        column.min_count[ch] = bucket_min_[ch];
-        column.max_count[ch] = bucket_max_[ch];
-    }
+    pretrigger_columns_[pretrigger_write_index_] = bucket;
 
     ++pretrigger_write_index_;
     if (pretrigger_write_index_ >= config::kDefaultTriggerColumn) {
@@ -345,6 +509,35 @@ void AcquisitionEngine::commit_pretrigger_bucket()
     if (pretrigger_count_ < config::kDefaultTriggerColumn) {
         ++pretrigger_count_;
     }
+}
+
+// Takes no inputs, copies the current bucket into the next frame column, marks
+// completion when the frame is full.
+void AcquisitionEngine::commit_bucket()
+{
+    ColumnSampleBucket column = {};
+    for (std::uint8_t ch = 0; ch < 2u; ++ch) {
+        column.valid[ch] = bucket_valid_[ch];
+        column.min_count[ch] = bucket_min_[ch];
+        column.max_count[ch] = bucket_max_[ch];
+    }
+
+    append_frame_column(column);
+    clear_bucket();
+}
+
+// Takes no inputs, copies the current bucket into the rolling pre-trigger ring,
+// marks the ring populated up to its capacity.
+void AcquisitionEngine::commit_pretrigger_bucket()
+{
+    ColumnSampleBucket column = {};
+    for (std::uint8_t ch = 0; ch < 2u; ++ch) {
+        column.valid[ch] = bucket_valid_[ch];
+        column.min_count[ch] = bucket_min_[ch];
+        column.max_count[ch] = bucket_max_[ch];
+    }
+
+    append_pretrigger_column(column);
     clear_bucket();
 }
 
@@ -377,6 +570,16 @@ void AcquisitionEngine::clear_bucket()
         bucket_valid_[ch] = false;
     }
     bucket_count_ = 0;
+}
+
+// Takes no inputs, clears the previous raw pair used by interpolation.
+void AcquisitionEngine::clear_interpolation_state()
+{
+    for (std::uint8_t ch = 0; ch < 2u; ++ch) {
+        interpolation_previous_raw_[ch] = 0;
+        interpolation_previous_valid_[ch] = false;
+    }
+    interpolation_has_previous_ = false;
 }
 
 // Takes no inputs, clears rolling pre-trigger display columns and indices.
