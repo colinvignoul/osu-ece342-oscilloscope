@@ -44,6 +44,42 @@ ControlAxis control_axis_from_switch(bool active)
     return active ? ControlAxis::Horizontal : ControlAxis::Vertical;
 }
 
+float channel_volts_per_div(const ChannelSettings &channel)
+{
+    return config::kVoltsScales[channel.volts_scale_index].volts_per_div;
+}
+
+std::uint16_t vertical_adc_counts_per_pixel(const ChannelSettings &channel)
+{
+    if (channel.calibration.volts_per_count <= 0.0f) {
+        return 1u;
+    }
+
+    const float counts =
+        channel_volts_per_div(channel) /
+        (static_cast<float>(config::kPixelsPerDivisionY) *
+         channel.calibration.volts_per_count);
+    if (counts <= 1.0f) {
+        return 1u;
+    }
+    if (counts >= static_cast<float>(config::kAdcMaxCount)) {
+        return config::kAdcMaxCount;
+    }
+    return static_cast<std::uint16_t>(counts + 0.5f);
+}
+
+float vertical_offset_divs_per_detent(const ChannelSettings &channel)
+{
+    const float scale = channel_volts_per_div(channel);
+    if (scale <= 0.0f || channel.calibration.volts_per_count <= 0.0f) {
+        return 1.0f / static_cast<float>(config::kPixelsPerDivisionY);
+    }
+
+    const std::uint16_t count_step = vertical_adc_counts_per_pixel(channel);
+    return (static_cast<float>(count_step) * channel.calibration.volts_per_count) /
+           scale;
+}
+
 bool apply_horizontal_position_delta(ChannelSettings &channel, std::int16_t delta)
 {
     if (delta == 0) {
@@ -53,7 +89,7 @@ bool apply_horizontal_position_delta(ChannelSettings &channel, std::int16_t delt
     const std::int32_t requested =
         static_cast<std::int32_t>(channel.horizontal_offset_columns) +
         static_cast<std::int32_t>(delta) *
-            config::kPositionEncoderPixelsPerTransition;
+            config::kHorizontalOffsetColumnsPerDetent;
     const std::int16_t clamped = static_cast<std::int16_t>(
         clamp_value<std::int32_t>(requested,
                                   std::numeric_limits<std::int16_t>::min(),
@@ -72,7 +108,7 @@ bool apply_vertical_position_delta(ChannelSettings &channel, std::int16_t delta)
     }
 
     channel.vertical_offset_divs +=
-        static_cast<float>(delta) * config::kVerticalOffsetDivsPerTransition;
+        static_cast<float>(delta) * vertical_offset_divs_per_detent(channel);
     return true;
 }
 
@@ -139,10 +175,12 @@ ScopeUpdate apply_input_events(ScopeSettings &settings, const InputEvents &event
     }
 
     if (events.trigger_delta != 0) {
+        const ChannelSettings &trigger_channel =
+            settings.channels[channel_index(settings.trigger.source)];
         const std::int32_t requested =
             static_cast<std::int32_t>(settings.trigger.level_count) +
             static_cast<std::int32_t>(events.trigger_delta) *
-                config::kTriggerEncoderCountsPerTransition;
+                vertical_adc_counts_per_pixel(trigger_channel);
         const std::uint16_t clamped = static_cast<std::uint16_t>(
             clamp_value<std::int32_t>(requested, 0, config::kAdcMaxCount));
         if (clamped != settings.trigger.level_count) {
@@ -196,7 +234,7 @@ const char *volts_scale_label(const ChannelSettings &channel)
 
 float volts_per_div(const ChannelSettings &channel)
 {
-    return config::kVoltsScales[channel.volts_scale_index].volts_per_div;
+    return channel_volts_per_div(channel);
 }
 
 const char *timebase_label(const ScopeSettings &settings)

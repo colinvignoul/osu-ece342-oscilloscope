@@ -3,7 +3,7 @@
 // Interface: EncoderManager produces InputEvents from three configured
 // encoders plus two configured switches.
 // Constraints: Encoder GPIOs are pull-up inputs, switch active level comes
-// from config, switches are sampled as levels, and queued encoder deltas are
+// from config, switches are sampled as levels, and queued encoder detents are
 // drained atomically from poll().
 // Ownership: EncoderManager owns decoder and switch state; GPIO hardware remains
 // managed through Pico SDK calls.
@@ -82,7 +82,7 @@ void EncoderManager::init_encoder(EncoderState &encoder,
 {
     encoder.pin_a = pin_a;
     encoder.pin_b = pin_b;
-    encoder.last_interrupt_us = 0;
+    encoder.last_detent_us = 0;
 
     gpio_init(pin_a);
     gpio_set_dir(pin_a, GPIO_IN);
@@ -148,20 +148,20 @@ void EncoderManager::handle_gpio_irq(std::uint8_t gpio)
         return;
     }
 
-    const std::uint32_t now = time_us_32();
-    if ((now - encoder->last_interrupt_us) < config::kEncoderIrqDebounceUs) {
-        return;
-    }
-    encoder->last_interrupt_us = now;
-
     const std::int8_t delta =
         encoder->decoder.update(read_pin(encoder->pin_a), read_pin(encoder->pin_b));
     if (delta != 0) {
+        const std::uint32_t now = time_us_32();
+        if (encoder->last_detent_us != 0u &&
+            (now - encoder->last_detent_us) < config::kEncoderDetentDuplicateGuardUs) {
+            return;
+        }
+        encoder->last_detent_us = now;
         queue_encoder_delta(*encoder, delta);
     }
 }
 
-// Takes an encoder and a per-transition delta, queues it for the next poll, and
+// Takes an encoder and a per-detent delta, queues it for the next poll, and
 // returns nothing.
 void EncoderManager::queue_encoder_delta(EncoderState &encoder, std::int8_t delta)
 {

@@ -135,7 +135,8 @@ struct ScopeSettings {
     bool running = true;
 };
 
-// Input snapshot returned by one EncoderManager poll.
+// Input snapshot returned by one EncoderManager poll. Rotary deltas are signed
+// physical-detent counts.
 struct InputEvents {
     std::int16_t trigger_delta = 0;
     std::int16_t shift_delta = 0;

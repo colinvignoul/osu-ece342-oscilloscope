@@ -1,7 +1,7 @@
 // Purpose: Declares input support for trigger, shift, and scale rotary encoders
 // plus active-high channel and horizontal-axis switches.
 // Interface: init() configures GPIOs/encoder IRQs, then poll() returns
-// switch levels and drained rotary deltas as InputEvents.
+// switch levels and drained rotary detent deltas as InputEvents.
 // Constraints: Encoder A/B inputs use pull-ups and GPIO interrupts; switches use
 // pull-down inputs and are sampled by polling.
 // Ownership: EncoderManager owns per-encoder decoder and switch state only; GPIO
@@ -37,7 +37,7 @@ private:
         std::uint8_t pin_a = 0;
         std::uint8_t pin_b = 0;
         QuadratureDecoder decoder = {};
-        std::uint32_t last_interrupt_us = 0;
+        std::uint32_t last_detent_us = 0;
     };
 
     // Takes an encoder state plus GPIO pins, configures pull-up inputs and IRQs,
@@ -62,8 +62,8 @@ private:
     // encoder decoder, and queues any resulting movement.
     void handle_gpio_irq(std::uint8_t gpio);
 
-    // Takes an encoder and a per-transition delta, queues it for the next poll,
-    // and returns nothing.
+    // Takes an encoder and a per-detent delta, queues it for the next poll, and
+    // returns nothing.
     void queue_encoder_delta(EncoderState &encoder, std::int8_t delta);
 
     // Takes a GPIO number, finds the encoder that owns it, and returns that

@@ -153,11 +153,7 @@ constexpr Timebase kTimebases[] = {
 constexpr std::size_t kTimebaseCount = sizeof(kTimebases) / sizeof(kTimebases[0]);
 constexpr std::uint8_t kDefaultTimebaseIndex = 5;
 
-constexpr std::int16_t kTriggerEncoderCountsPerTransition = 2;
-constexpr std::int16_t kPositionEncoderPixelsPerTransition = 1;
-constexpr float kVerticalOffsetDivsPerTransition =
-    static_cast<float>(kPositionEncoderPixelsPerTransition) /
-    static_cast<float>(kPixelsPerDivisionY);
-constexpr std::uint32_t kEncoderIrqDebounceUs = 5000;
+constexpr std::int16_t kHorizontalOffsetColumnsPerDetent = 1;
+constexpr std::uint32_t kEncoderDetentDuplicateGuardUs = 1000;
 
 } // namespace picoscope::config
