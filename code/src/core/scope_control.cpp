@@ -160,6 +160,16 @@ ScopeUpdate apply_input_events(ScopeSettings &settings, const InputEvents &event
 {
     ScopeUpdate update = {};
 
+    const bool requested_running = !events.hold_switch_active;
+    if (settings.running != requested_running) {
+        settings.running = requested_running;
+        if (settings.running) {
+            request_capture_reset(update);
+        } else {
+            request_redraw(update);
+        }
+    }
+
     const Channel selected_channel = channel_from_switch(events.channel_switch_active);
     if (settings.active_channel != selected_channel ||
         settings.trigger.source != selected_channel) {

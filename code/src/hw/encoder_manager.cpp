@@ -1,7 +1,7 @@
 // Purpose: Implements IRQ-driven GPIO sampling for rotary encoders and
 // polling for active-high switches.
 // Interface: EncoderManager produces InputEvents from three configured
-// encoders plus two configured switches.
+// encoders plus three configured switches.
 // Constraints: Encoder GPIOs are pull-up inputs, switch active level comes
 // from config, switches are sampled as levels, and queued encoder detents are
 // drained atomically from poll().
@@ -61,6 +61,7 @@ void EncoderManager::init()
     init_encoder(trigger_, config::kTriggerEncA, config::kTriggerEncB);
     init_switch(channel_switch_, config::kChannelSwitch);
     init_switch(horizontal_switch_, config::kHorizontalSwitch);
+    init_switch(run_hold_switch_, config::kRunHoldSwitch);
 }
 
 // Takes no inputs, polls switches, drains queued encoder state, and returns
@@ -71,6 +72,7 @@ InputEvents EncoderManager::poll()
     drain_pending_deltas(events);
     events.channel_switch_active = sample_switch(channel_switch_);
     events.horizontal_switch_active = sample_switch(horizontal_switch_);
+    events.hold_switch_active = sample_switch(run_hold_switch_);
     return events;
 }
 

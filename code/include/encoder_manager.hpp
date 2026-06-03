@@ -1,5 +1,5 @@
 // Purpose: Declares input support for trigger, shift, and scale rotary encoders
-// plus active-high channel and horizontal-axis switches.
+// plus active-high channel, horizontal-axis, and run/hold switches.
 // Interface: init() configures GPIOs/encoder IRQs, then poll() returns
 // switch levels and drained rotary detent deltas as InputEvents.
 // Constraints: Encoder A/B inputs use pull-ups and GPIO interrupts; switches use
@@ -17,7 +17,7 @@
 namespace picoscope {
 
 // Owns decoder and switch state for the trigger, shift, scale, active-channel,
-// and vertical/horizontal controls.
+// vertical/horizontal, and run/hold controls.
 class EncoderManager {
 public:
     // Takes no inputs, initializes all encoder/switch GPIOs, IRQs, and decoder
@@ -79,6 +79,7 @@ private:
     EncoderState scale_ = {};
     SwitchState channel_switch_ = {};
     SwitchState horizontal_switch_ = {};
+    SwitchState run_hold_switch_ = {};
 
     volatile std::int32_t pending_trigger_delta_ = 0;
     volatile std::int32_t pending_shift_delta_ = 0;

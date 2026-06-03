@@ -34,6 +34,7 @@ constexpr std::uint8_t kTriggerEncA = 3;
 constexpr std::uint8_t kTriggerEncB = 4;
 constexpr std::uint8_t kChannelSwitch = 5;
 constexpr std::uint8_t kHorizontalSwitch = 7;
+constexpr std::uint8_t kRunHoldSwitch = 8;
 constexpr std::uint8_t kLcdPinCs = 17;
 constexpr std::uint8_t kLcdPinSck = 18;
 constexpr std::uint8_t kLcdPinMosi = 19;

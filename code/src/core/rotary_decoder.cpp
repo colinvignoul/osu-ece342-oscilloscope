@@ -17,7 +17,7 @@ constexpr std::int8_t kTransitionTable[16] = {
      0,  1, -1,  0,
     -1,  0,  0,  1,
      1,  0,  0, -1,
-     0, -1,  1,  0
+     0, -1,  1,  0,
 };
 constexpr std::int8_t kTransitionsPerDetent = 4;
 
